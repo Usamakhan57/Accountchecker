@@ -888,3 +888,50 @@
   background: var(--ac-accent-soft);
   border-color: var(--ac-accent);
 }
+
+/* Wallet ------------------------------------------------------------------ */
+
+.ac-hold-list {
+  display: grid;
+  gap: var(--ac-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ac-hold {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ac-space-3);
+  align-items: center;
+  padding: var(--ac-space-3);
+  border: 1px solid var(--ac-border);
+  border-radius: var(--ac-radius-md);
+  background: var(--ac-surface-sunken);
+}
+
+.ac-hold__main {
+  display: grid;
+  gap: 0.125rem;
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: var(--ac-text-sm);
+}
+
+.ac-hold__title {
+  font-weight: 600;
+}
+
+.ac-hold__amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.ac-amount--in {
+  color: var(--ac-valid-text);
+}
+
+.ac-amount--out {
+  color: var(--ac-text);
+}

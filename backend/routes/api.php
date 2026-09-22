@@ -11,6 +11,7 @@ use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\JobController;
 use AccountCheck\Controllers\ResultController;
 use AccountCheck\Controllers\ToolController;
+use AccountCheck\Controllers\WalletController;
 use AccountCheck\Controllers\UserController;
 use AccountCheck\Core\Router;
 use AccountCheck\Middleware\AdminMiddleware;
@@ -84,6 +85,13 @@ return static function (Router $router): void {
         $router->get('/history', [HistoryController::class, 'index'], $authenticated);
         $router->delete('/history', [HistoryController::class, 'clear'], $authenticated);
         $router->delete('/history/{id}', [HistoryController::class, 'destroy'], $authenticated);
+
+        // Wallet -----------------------------------------------------------
+        // Read-only by design. Credits arrive from a settled purchase or from
+        // an administrator; no request field here maps onto a balance, so a
+        // client cannot change its own.
+        $router->get('/wallet', [WalletController::class, 'index'], $authenticated);
+        $router->get('/wallet/transactions', [WalletController::class, 'transactions'], $authenticated);
 
         // Free tools -------------------------------------------------------
         // No credits and no job: these process the user's own list locally

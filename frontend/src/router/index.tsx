@@ -51,6 +51,7 @@ const JobsPage = lazy(() => import('@/pages/app/JobsPage').then((m) => ({ defaul
 const JobDetailPage = lazy(() => import('@/pages/app/JobDetailPage').then((m) => ({ default: m.JobDetailPage })));
 const ResultsPage = lazy(() => import('@/pages/app/ResultsPage').then((m) => ({ default: m.ResultsPage })));
 const HistoryPage = lazy(() => import('@/pages/app/HistoryPage').then((m) => ({ default: m.HistoryPage })));
+const WalletPage = lazy(() => import('@/pages/app/WalletPage').then((m) => ({ default: m.WalletPage })));
 const SettingsPage = lazy(() => import('@/pages/app/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
 function RouteFallback() {
@@ -103,6 +104,7 @@ export function AppRoutes() {
             <Route path="jobs/:id" element={<JobDetailPage />} />
             <Route path="results" element={<ResultsPage />} />
             <Route path="history" element={<HistoryPage />} />
+            <Route path="wallet" element={<WalletPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="profile" element={<SettingsPage />} />
           </Route>

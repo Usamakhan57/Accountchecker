@@ -277,12 +277,31 @@ export type WalletTransactionType = 'CREDIT' | 'DEBIT' | 'REFUND' | 'ADJUSTMENT'
 
 export interface WalletTransaction {
   id: number;
+  /** Signed: positive added, negative spent. */
   amount: number;
   type: WalletTransactionType;
   balance_after: number;
   description: string;
   reference: string | null;
   created_at: string;
+}
+
+/** A running job and the credits it is currently holding. */
+export interface WalletHold {
+  uuid: string;
+  checker_label: string;
+  status: JobStatus;
+  credits_reserved: number;
+  credits_spent: number;
+  total_items: number;
+  processed_items: number;
+}
+
+export interface WalletSummary {
+  wallet: Wallet;
+  totals: { added: number; spent: number; refunded: number; adjusted: number; entries: number };
+  spend_by_day: { date: string; credits: number }[];
+  holds: WalletHold[];
 }
 
 export interface Plan {

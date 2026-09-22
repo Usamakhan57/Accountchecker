@@ -305,6 +305,97 @@ final class WalletRepository extends Repository
         return ['items' => $items, 'total' => $total];
     }
 
+    /**
+     * Lifetime totals for the wallet summary.
+     *
+     * Derived from the ledger rather than stored, so they cannot drift away
+     * from the entries they describe.
+     *
+     * @return array{added: int, spent: int, refunded: int, adjusted: int, entries: int}
+     */
+    public function totalsForUser(int $userId): array
+    {
+        $row = $this->database->selectOne(
+            "SELECT
+                 COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END), 0)          AS added,
+                 COALESCE(SUM(CASE WHEN type = 'DEBIT' THEN -amount ELSE 0 END), 0)          AS spent,
+                 COALESCE(SUM(CASE WHEN type = 'REFUND' THEN amount ELSE 0 END), 0)          AS refunded,
+                 COALESCE(SUM(CASE WHEN type = 'ADJUSTMENT' THEN amount ELSE 0 END), 0)      AS adjusted,
+                 COUNT(*)                                                                    AS entries
+             FROM wallet_transactions
+             WHERE user_id = :user_id",
+            ['user_id' => $userId],
+        );
+
+        return [
+            'added' => (int) ($row['added'] ?? 0),
+            'spent' => (int) ($row['spent'] ?? 0),
+            'refunded' => (int) ($row['refunded'] ?? 0),
+            'adjusted' => (int) ($row['adjusted'] ?? 0),
+            'entries' => (int) ($row['entries'] ?? 0),
+        ];
+    }
+
+    /**
+     * Credits spent per day, for the wallet's usage chart.
+     *
+     * @return list<array{date: string, credits: int}>
+     */
+    public function spendByDay(int $userId, int $days = 30): array
+    {
+        $days = max(1, min(120, $days));
+
+        $rows = $this->database->select(
+            "SELECT DATE(created_at) AS day, COALESCE(SUM(-amount), 0) AS credits
+             FROM wallet_transactions
+             WHERE user_id = :user_id
+               AND type = 'DEBIT'
+               AND created_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL :days DAY)
+             GROUP BY DATE(created_at)
+             ORDER BY day",
+            ['user_id' => $userId, 'days' => $days],
+        );
+
+        $byDay = [];
+        foreach ($rows as $row) {
+            $byDay[(string) $row['day']] = (int) $row['credits'];
+        }
+
+        // Every day in the window is present, so the chart has no gaps where
+        // nothing was spent.
+        $series = [];
+        for ($offset = $days - 1; $offset >= 0; $offset--) {
+            $date = gmdate('Y-m-d', time() - ($offset * 86400));
+            $series[] = ['date' => $date, 'credits' => $byDay[$date] ?? 0];
+        }
+
+        return $series;
+    }
+
+    /**
+     * What each running job is currently holding.
+     *
+     * The reserved figure on its own is a number with no explanation; this is
+     * what it is reserved for.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function activeHolds(int $userId): array
+    {
+        return $this->database->select(
+            "SELECT j.id, j.uuid, j.status, j.credits_reserved, j.credits_spent,
+                    j.total_items, j.processed_items, c.label AS checker_label
+             FROM checker_jobs j
+             INNER JOIN checker_types c ON c.id = j.checker_type_id
+             WHERE j.user_id = :user_id
+               AND j.status IN ('PENDING', 'QUEUED', 'PROCESSING')
+               AND j.credits_reserved > 0
+             ORDER BY j.id DESC
+             LIMIT 25",
+            ['user_id' => $userId],
+        );
+    }
+
     public function totalCreditsSpent(int $userId): int
     {
         return (int) abs((int) ($this->database->scalar(
