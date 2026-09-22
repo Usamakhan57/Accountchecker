@@ -66,8 +66,29 @@ class Database
     public function run(string $sql, array $bindings = []): PDOStatement
     {
         try {
+            [$sql, $bindings] = $this->expandRepeatedParameters($sql, $bindings);
+
             $statement = $this->pdo()->prepare($sql);
-            $statement->execute($bindings);
+
+            // Bind each value with its PDO type rather than passing the array
+            // to execute(), which would send everything as a string. With
+            // emulated prepares off, MySQL rejects a string in LIMIT/OFFSET,
+            // and an integer column compared against a string cannot use its
+            // index.
+            foreach ($bindings as $key => $value) {
+                $statement->bindValue(
+                    is_int($key) ? $key + 1 : $key,
+                    $value,
+                    match (true) {
+                        is_int($value) => PDO::PARAM_INT,
+                        is_bool($value) => PDO::PARAM_BOOL,
+                        $value === null => PDO::PARAM_NULL,
+                        default => PDO::PARAM_STR,
+                    },
+                );
+            }
+
+            $statement->execute();
 
             return $statement;
         } catch (PDOException $e) {
@@ -217,6 +238,77 @@ class Database
     public function inTransaction(): bool
     {
         return $this->transactionDepth > 0;
+    }
+
+    /**
+     * Gives each occurrence of a repeated named placeholder its own name.
+     *
+     * With emulated prepares off, PDO hands named parameters to MySQL as
+     * positional ones, and MySQL then expects exactly as many values as there
+     * are markers. A query that mentions the same name twice — `WHERE balance
+     * - :amount >= 0 AND reserved + :amount <= balance`, or an email/name
+     * search reusing `:search` — therefore fails with "Invalid parameter
+     * number" even though the SQL is correct.
+     *
+     * Rewriting `:amount` to `:amount__1` / `:amount__2` and duplicating the
+     * bound value keeps queries readable instead of forcing every caller to
+     * invent a second name for the same value.
+     *
+     * @param array<string|int, mixed> $bindings
+     * @return array{0: string, 1: array<string|int, mixed>}
+     */
+    private function expandRepeatedParameters(string $sql, array $bindings): array
+    {
+        if ($bindings === [] || array_is_list($bindings)) {
+            return [$sql, $bindings];
+        }
+
+        if (preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $sql, $matches) === 0) {
+            return [$sql, $bindings];
+        }
+
+        /** @var array<string, int> $repeated */
+        $repeated = array_filter(
+            array_count_values($matches[1]),
+            static fn (int $count): bool => $count > 1,
+        );
+
+        if ($repeated === []) {
+            return [$sql, $bindings];
+        }
+
+        $expanded = $bindings;
+        $seen = [];
+
+        $rewritten = preg_replace_callback(
+            '/:([a-zA-Z_][a-zA-Z0-9_]*)/',
+            static function (array $match) use (&$seen, &$expanded, $repeated, $bindings): string {
+                $name = $match[1];
+
+                // A marker with no bound value is left alone: it is either a
+                // caller error, which PDO reports clearly, or not a parameter.
+                if (!isset($repeated[$name]) || !array_key_exists($name, $bindings)) {
+                    return $match[0];
+                }
+
+                $seen[$name] = ($seen[$name] ?? 0) + 1;
+                $alias = $name . '__' . $seen[$name];
+                $expanded[$alias] = $bindings[$name];
+
+                return ':' . $alias;
+            },
+            $sql,
+        );
+
+        if ($rewritten === null) {
+            return [$sql, $bindings];
+        }
+
+        foreach (array_keys($repeated) as $name) {
+            unset($expanded[$name]);
+        }
+
+        return [$rewritten, $expanded];
     }
 
     /**

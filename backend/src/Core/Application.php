@@ -28,11 +28,18 @@ final class Application
         } catch (HttpException $e) {
             return $this->decorate($e->toResponse(), $request);
         } catch (Throwable $e) {
+            // The log gets the whole chain, including the driver message a
+            // DatabaseException deliberately hides from callers. None of this
+            // reaches the response.
             $this->logger->error('Unhandled application error', [
                 'exception' => $e::class,
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'previous' => $e->getPrevious()?->getMessage(),
+                'trace' => $this->config->bool('app.debug')
+                    ? array_slice(explode("\n", $e->getTraceAsString()), 0, 12)
+                    : null,
                 'path' => $request->path(),
                 'method' => $request->method(),
             ]);
