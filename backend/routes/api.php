@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use AccountCheck\Controllers\AuthController;
+use AccountCheck\Controllers\DashboardController;
 use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\UserController;
 use AccountCheck\Core\Router;
@@ -48,6 +49,9 @@ return static function (Router $router): void {
         $router->get('/user/sessions', [UserController::class, 'sessions'], $authenticated);
         $router->post('/user/sessions/revoke-others', [UserController::class, 'revokeOtherSessions'], $authenticated);
         $router->get('/user/activity', [UserController::class, 'activity'], $authenticated);
+
+        // Dashboard ------------------------------------------------------
+        $router->get('/dashboard', [DashboardController::class, 'index'], $authenticated);
 
         // Admin ----------------------------------------------------------
         // Routes are added by later phases; the middleware stack is fixed here
