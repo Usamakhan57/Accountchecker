@@ -73,7 +73,7 @@ final class Validator
                 [$name, $parameter] = array_pad(explode(':', $rule, 2), 2, null);
                 $result = $this->applyRule($field, $name, $parameter, $value);
 
-                if ($result === false) {
+                if ($result === self::failure()) {
                     $failed = true;
                     break;
                 }
@@ -102,7 +102,7 @@ final class Validator
     }
 
     /**
-     * @return mixed|false The (possibly cast) value, or false when the rule fails.
+     * @return mixed The (possibly cast) value, or the failure sentinel when the rule rejects it.
      */
     private function applyRule(string $field, string $name, ?string $parameter, mixed $value): mixed
     {
@@ -262,11 +262,28 @@ final class Validator
         return $value;
     }
 
-    private function fail(string $field, string $message): false
+    /**
+     * Records a failure and returns the sentinel.
+     *
+     * The sentinel is an object rather than `false` on purpose: a rule that
+     * legitimately produces `false` (a boolean field set to false, and nothing
+     * else in the language is as easy to get wrong here) would otherwise be
+     * indistinguishable from a rule that rejected the value, and the field
+     * would be dropped from the validated set without an error to show for it.
+     */
+    private function fail(string $field, string $message): object
     {
         $this->addError($field, $message);
 
-        return false;
+        return self::failure();
+    }
+
+    /** The single instance compared by identity in passes(). */
+    private static function failure(): object
+    {
+        static $sentinel = null;
+
+        return $sentinel ??= new \stdClass();
     }
 
     private function addError(string $field, string $message): void

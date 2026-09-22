@@ -172,6 +172,56 @@ final class JobRepository extends Repository
     }
 
     /**
+     * Every job, for the admin panel.
+     *
+     * The same filters as the user-facing list, plus an optional owner, and the
+     * owner's name and email joined in so the table does not need a lookup per
+     * row. Scoped by nothing else: this is the deliberate difference between
+     * the admin list and paginateForUser above, and the route that reaches it
+     * is behind AdminMiddleware.
+     *
+     * @param array{status?: string, checker?: string, user_id?: int} $filters
+     * @return array{items: list<array<string, mixed>>, total: int}
+     */
+    public function paginateAll(Paginator $paginator, array $filters = []): array
+    {
+        $conditions = ['1 = 1'];
+        $bindings = [];
+
+        $userId = isset($filters['user_id']) ? (int) $filters['user_id'] : 0;
+
+        if ($userId > 0) {
+            $conditions[] = 'j.user_id = :user_id';
+            $bindings['user_id'] = $userId;
+        }
+
+        [$where, $bindings] = $this->jobFilters($filters, $conditions, $bindings);
+
+        $total = (int) ($this->database->scalar(
+            'SELECT COUNT(*) FROM checker_jobs j
+             INNER JOIN checker_types c ON c.id = j.checker_type_id
+             WHERE ' . $where,
+            $bindings,
+        ) ?? 0);
+
+        // The owner's columns are spliced into the standard job select rather
+        // than duplicating it, so the two lists cannot drift apart.
+        $sql = str_replace(
+            'c.label AS checker_label',
+            'c.label AS checker_label,
+                       u.uuid AS user_uuid, u.name AS user_name, u.email AS user_email',
+            $this->selectJobSql(),
+        ) . ' INNER JOIN users u ON u.id = j.user_id';
+
+        $items = $this->database->select(
+            $sql . ' WHERE ' . $where . ' ORDER BY j.id DESC LIMIT :limit OFFSET :offset',
+            $bindings + ['limit' => $paginator->limit(), 'offset' => $paginator->offset()],
+        );
+
+        return ['items' => $items, 'total' => $total];
+    }
+
+    /**
      * The narrow row the progress poller reads.
      *
      * The workspace polls this every couple of seconds while a job runs, so it

@@ -55,6 +55,37 @@ final class PlanRepository extends Repository
     }
 
     /**
+     * Applies an administrator's edits.
+     *
+     * Column names come from the allow-list below, never from the request, so
+     * a caller cannot name a column the admin panel does not own. `features` is
+     * re-encoded here rather than trusted as a string.
+     *
+     * @param array<string, mixed> $changes
+     */
+    public function update(int $id, array $changes): bool
+    {
+        $allowed = ['name', 'description', 'price_cents', 'credits', 'features', 'is_active', 'sort_order'];
+        $data = [];
+
+        foreach ($allowed as $column) {
+            if (!array_key_exists($column, $changes)) {
+                continue;
+            }
+
+            $data[$column] = $column === 'features'
+                ? json_encode(array_values(array_map('strval', (array) $changes[$column])))
+                : $changes[$column];
+        }
+
+        if ($data === []) {
+            return false;
+        }
+
+        return $this->database->update('plans', $data, ['id' => $id]) > 0;
+    }
+
+    /**
      * Turns a stored row into the shape the rest of the application expects.
      *
      * `features` is a JSON column, so a malformed or null value has to degrade

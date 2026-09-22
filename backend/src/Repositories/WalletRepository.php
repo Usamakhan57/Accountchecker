@@ -293,7 +293,7 @@ final class WalletRepository extends Repository
 
         $items = $this->database->select(
             'SELECT t.id, t.user_id, t.amount, t.type, t.balance_after, t.description,
-                    t.reference, t.created_at, u.email AS user_email, u.name AS user_name
+                    t.reference, t.created_at, u.uuid AS user_uuid, u.email AS user_email, u.name AS user_name
              FROM wallet_transactions t
              INNER JOIN users u ON u.id = t.user_id
              WHERE ' . $where . '

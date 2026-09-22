@@ -203,6 +203,37 @@ final class Presenter
     }
 
     /**
+     * A job row for the admin views, carrying its owner.
+     *
+     * The admin job list and the overview both render the owner, so the shape
+     * is produced once here. A row without the owner columns degrades to empty
+     * strings rather than an undefined the interface would crash on.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    public static function adminJob(array $row): array
+    {
+        $job = self::job($row);
+        $job['user'] = [
+            'uuid' => (string) ($row['user_uuid'] ?? ''),
+            'name' => (string) ($row['user_name'] ?? ''),
+            'email' => (string) ($row['user_email'] ?? ''),
+        ];
+
+        return $job;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     * @return list<array<string, mixed>>
+     */
+    public static function adminJobs(array $rows): array
+    {
+        return array_map([self::class, 'adminJob'], $rows);
+    }
+
+    /**
      * Admin-facing user row. Includes wallet figures and status, never the
      * password hash.
      *

@@ -386,3 +386,123 @@ export interface DashboardStats {
   recent_jobs: Job[];
   usage_by_day: { date: string; checks: number }[];
 }
+
+/* Administration ---------------------------------------------------------- */
+
+export interface AdminUser {
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  role: string;
+  status: 'ACTIVE' | 'SUSPENDED' | 'PENDING';
+  email_verified: boolean;
+  wallet_balance: number;
+  wallet_reserved: number;
+  created_at: string;
+  last_login_at: string | null;
+}
+
+/** A role as the admin panel lists it, read from the roles table. */
+export interface RoleOption {
+  slug: string;
+  name: string;
+  description: string;
+  is_staff: boolean;
+}
+
+export interface AdminUserList extends Paginated<AdminUser> {
+  counts: Record<string, number>;
+  roles: RoleOption[];
+}
+
+export interface AdminUserDetail {
+  user: AdminUser;
+  wallet: Wallet;
+  wallet_totals: { added: number; spent: number; refunded: number; adjusted: number; entries: number };
+  holds: WalletHold[];
+  recent_jobs: Job[];
+  recent_activity: { id: number; action: string; description: string; created_at: string }[];
+  roles: RoleOption[];
+}
+
+/** A job row in the admin list, which carries its owner. */
+export interface AdminJob extends Job {
+  user: { uuid: string; name: string; email: string };
+}
+
+export interface AdminJobList extends Paginated<AdminJob> {
+  queue_depth: number;
+}
+
+export interface AdminTransaction extends WalletTransaction {
+  user: { uuid: string; email: string };
+}
+
+export interface AdminTransactionList extends Paginated<AdminTransaction> {
+  credits: { outstanding: number; reserved: number };
+}
+
+export interface AdminChecker {
+  id: number;
+  slug: string;
+  label: string;
+  description: string;
+  credit_cost: number;
+  max_batch_size: number;
+  is_enabled: boolean;
+  usage_30d: number;
+  configured: boolean;
+  mode: string;
+}
+
+export interface SystemSetting {
+  setting_key: string;
+  value_type: string;
+  description: string;
+  is_public: boolean;
+  updated_at: string;
+  value: unknown;
+}
+
+export interface AuditEntry {
+  id: number;
+  event: string;
+  severity: 'INFO' | 'NOTICE' | 'WARNING' | 'CRITICAL';
+  actor_id: number | null;
+  actor_role: string;
+  actor_email: string | null;
+  target_type: string | null;
+  target_id: number | null;
+  context: Record<string, unknown> | null;
+  ip_address: string | null;
+  created_at: string;
+}
+
+export interface AuditList extends Paginated<AuditEntry> {
+  events: string[];
+}
+
+export interface AdminOverview {
+  totals: {
+    users: { total: number; active: number; suspended: number; new_this_week: number };
+    jobs: { total: number; queued: number; processing: number; failed: number; checks: number };
+    credits: { outstanding: number; reserved: number };
+    support: { open: number; pending: number };
+  };
+  health: {
+    worker: {
+      status: 'ok' | 'stale';
+      worker_id: string | null;
+      hostname: string | null;
+      seconds_since_heartbeat: number | null;
+      jobs_processed: number;
+      items_processed: number;
+    };
+    queue: { pending_items: number; stalled_jobs: number };
+    errors_last_hour: number;
+  };
+  checker_usage: { slug: string; label: string; checks: number; valid: number; unavailable: number; errors: number }[];
+  recent_jobs: AdminJob[];
+  recent_events: AuditEntry[];
+}

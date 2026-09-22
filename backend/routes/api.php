@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+use AccountCheck\Controllers\Admin\CheckerController as AdminCheckerController;
+use AccountCheck\Controllers\Admin\JobController as AdminJobController;
+use AccountCheck\Controllers\Admin\LogController as AdminLogController;
+use AccountCheck\Controllers\Admin\OverviewController as AdminOverviewController;
+use AccountCheck\Controllers\Admin\PlanController as AdminPlanController;
+use AccountCheck\Controllers\Admin\SettingsController as AdminSettingsController;
+use AccountCheck\Controllers\Admin\UserController as AdminUserController;
+use AccountCheck\Controllers\Admin\WalletController as AdminWalletController;
 use AccountCheck\Controllers\AuthController;
 use AccountCheck\Controllers\CheckerController;
 use AccountCheck\Controllers\DashboardController;
@@ -102,6 +110,35 @@ return static function (Router $router): void {
         $router->get('/plans/{slug}', [PlanController::class, 'show']);
         $router->post('/plans/{slug}/checkout', [PlanController::class, 'checkout'], $authenticated);
 
+        // Administration -----------------------------------------------------
+        // The whole branch is behind AdminMiddleware, which rejects a
+        // non-administrator with 404 rather than 403 so the surface is not
+        // discoverable. Per-action permissions are checked again in
+        // AdminService, so a route added without one still cannot act.
+        $router->get('/admin/overview', [AdminOverviewController::class, 'index'], $admin);
+
+        $router->get('/admin/users', [AdminUserController::class, 'index'], $admin);
+        $router->get('/admin/users/{id}', [AdminUserController::class, 'show'], $admin);
+        $router->put('/admin/users/{id}/status', [AdminUserController::class, 'updateStatus'], $admin);
+        $router->put('/admin/users/{id}/role', [AdminUserController::class, 'updateRole'], $admin);
+        $router->post('/admin/users/{id}/wallet', [AdminUserController::class, 'adjustWallet'], $admin);
+
+        $router->get('/admin/jobs', [AdminJobController::class, 'index'], $admin);
+        $router->post('/admin/jobs/{id}/cancel', [AdminJobController::class, 'cancel'], $admin);
+
+        $router->get('/admin/wallet/transactions', [AdminWalletController::class, 'transactions'], $admin);
+
+        $router->get('/admin/checkers', [AdminCheckerController::class, 'index'], $admin);
+        $router->put('/admin/checkers/{slug}', [AdminCheckerController::class, 'update'], $admin);
+
+        $router->get('/admin/plans', [AdminPlanController::class, 'index'], $admin);
+        $router->put('/admin/plans/{slug}', [AdminPlanController::class, 'update'], $admin);
+
+        $router->get('/admin/logs', [AdminLogController::class, 'index'], $admin);
+
+        $router->get('/admin/settings', [AdminSettingsController::class, 'index'], $admin);
+        $router->put('/admin/settings', [AdminSettingsController::class, 'update'], $admin);
+
         // Free tools -------------------------------------------------------
         // No credits and no job: these process the user's own list locally
         // and verify nothing, so there is no authorized source involved.
@@ -119,6 +156,5 @@ return static function (Router $router): void {
         // Admin ----------------------------------------------------------
         // Routes are added by later phases; the middleware stack is fixed here
         // so every admin endpoint inherits the same gate.
-        unset($admin);
-    });
+        });
 };

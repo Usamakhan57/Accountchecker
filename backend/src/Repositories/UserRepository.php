@@ -202,6 +202,27 @@ final class UserRepository extends Repository
         return ['items' => $items, 'total' => $total];
     }
 
+    /**
+     * The roles an administrator can assign, staff flag included.
+     *
+     * Read from the table rather than hard-coded, so a role added by a
+     * migration appears in the panel without a code change.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function roles(): array
+    {
+        return array_map(
+            static fn (array $row): array => [
+                'slug' => (string) $row['slug'],
+                'name' => (string) $row['name'],
+                'description' => (string) $row['description'],
+                'is_staff' => (bool) $row['is_staff'],
+            ],
+            $this->database->select('SELECT slug, name, description, is_staff FROM roles ORDER BY id'),
+        );
+    }
+
     /** @return array<string, int> */
     public function countsByStatus(): array
     {

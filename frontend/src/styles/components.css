@@ -1068,3 +1068,51 @@
   font-size: var(--ac-text-xs);
   color: var(--ac-text-subtle);
 }
+
+/* Administration ---------------------------------------------------------- */
+
+/* A number edited in place inside a table cell, sized to its content rather
+   than stretching the column. */
+.ac-input--inline {
+  width: 6rem;
+  min-height: 32px;
+  padding-block: 0;
+  text-align: right;
+}
+
+.ac-setting {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ac-space-3);
+  align-items: flex-start;
+  padding: var(--ac-space-4);
+  border-bottom: 1px solid var(--ac-border);
+}
+
+.ac-setting:last-child {
+  border-bottom: 0;
+}
+
+.ac-setting__main {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.ac-setting__key {
+  font-family: var(--ac-font-mono);
+  font-size: var(--ac-text-sm);
+  font-weight: 600;
+}
+
+.ac-setting__description {
+  margin: 0.25rem 0 0;
+  font-size: var(--ac-text-sm);
+  color: var(--ac-text-muted);
+}
+
+.ac-setting__control {
+  display: flex;
+  gap: var(--ac-space-2);
+  align-items: center;
+  flex: 0 0 auto;
+}

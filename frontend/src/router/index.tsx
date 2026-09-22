@@ -6,7 +6,7 @@ import { AdaptiveLayout } from '@/layouts/AdaptiveLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { PublicLayout } from '@/layouts/PublicLayout';
 import { NotFoundPage } from '@/pages/NotFoundPage';
-import { RedirectIfAuthenticated, RequireAuth } from '@/router/guards';
+import { RedirectIfAuthenticated, RequireAdmin, RequireAuth } from '@/router/guards';
 
 /**
  * Application routes.
@@ -54,6 +54,33 @@ const JobDetailPage = lazy(() => import('@/pages/app/JobDetailPage').then((m) =>
 const ResultsPage = lazy(() => import('@/pages/app/ResultsPage').then((m) => ({ default: m.ResultsPage })));
 const HistoryPage = lazy(() => import('@/pages/app/HistoryPage').then((m) => ({ default: m.HistoryPage })));
 const WalletPage = lazy(() => import('@/pages/app/WalletPage').then((m) => ({ default: m.WalletPage })));
+const AdminOverviewPage = lazy(() =>
+  import('@/pages/admin/AdminOverviewPage').then((m) => ({ default: m.AdminOverviewPage })),
+);
+const AdminUsersPage = lazy(() =>
+  import('@/pages/admin/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })),
+);
+const AdminUserDetailPage = lazy(() =>
+  import('@/pages/admin/AdminUserDetailPage').then((m) => ({ default: m.AdminUserDetailPage })),
+);
+const AdminJobsPage = lazy(() =>
+  import('@/pages/admin/AdminJobsPage').then((m) => ({ default: m.AdminJobsPage })),
+);
+const AdminWalletPage = lazy(() =>
+  import('@/pages/admin/AdminWalletPage').then((m) => ({ default: m.AdminWalletPage })),
+);
+const AdminPlansPage = lazy(() =>
+  import('@/pages/admin/AdminPlansPage').then((m) => ({ default: m.AdminPlansPage })),
+);
+const AdminCheckersPage = lazy(() =>
+  import('@/pages/admin/AdminCheckersPage').then((m) => ({ default: m.AdminCheckersPage })),
+);
+const AdminLogsPage = lazy(() =>
+  import('@/pages/admin/AdminLogsPage').then((m) => ({ default: m.AdminLogsPage })),
+);
+const AdminSettingsPage = lazy(() =>
+  import('@/pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })),
+);
 const SettingsPage = lazy(() => import('@/pages/app/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
 function RouteFallback() {
@@ -115,6 +142,21 @@ export function AppRoutes() {
             <Route path="wallet" element={<WalletPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="profile" element={<SettingsPage />} />
+
+            {/* The panel. RequireAdmin decides what the browser renders; the
+                API rejects a non-administrator regardless, answering 404 so
+                the surface is not discoverable. */}
+            <Route element={<RequireAdmin />}>
+              <Route path="admin" element={<AdminOverviewPage />} />
+              <Route path="admin/users" element={<AdminUsersPage />} />
+              <Route path="admin/users/:id" element={<AdminUserDetailPage />} />
+              <Route path="admin/jobs" element={<AdminJobsPage />} />
+              <Route path="admin/wallet" element={<AdminWalletPage />} />
+              <Route path="admin/plans" element={<AdminPlansPage />} />
+              <Route path="admin/checkers" element={<AdminCheckersPage />} />
+              <Route path="admin/logs" element={<AdminLogsPage />} />
+              <Route path="admin/settings" element={<AdminSettingsPage />} />
+            </Route>
           </Route>
         </Route>
 
