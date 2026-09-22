@@ -155,13 +155,22 @@ seedOut(sprintf('Checker types: %d', count($checkerDefaults)));
 // Plans ---------------------------------------------------------------------
 // Pricing is database-driven; these are starting values an administrator edits.
 $plans = [
+    // Feature lines describe what this build actually does. Plans differ by how
+    // many credits they include and by what a credit costs; every account gets
+    // the same checkers, the same batch limit and the same tools. Claiming a
+    // tier-only capability that nothing enforces would be a lie in the product.
     [
         'slug' => 'free',
         'name' => 'Free',
         'description' => 'Try the workspace and the free tools.',
         'price_cents' => 0,
         'credits' => 100,
-        'features' => ['100 starter credits', 'Batches up to 100 records', 'Duplicate finder and name generator', 'CSV and TXT export'],
+        'features' => [
+            '100 credits when you sign up',
+            'Every checker and both free tools',
+            'Full result history and exports',
+            'No card needed',
+        ],
         'sort_order' => 10,
     ],
     [
@@ -170,7 +179,12 @@ $plans = [
         'description' => 'For occasional lists.',
         'price_cents' => 1900,
         'credits' => 5000,
-        'features' => ['5,000 credits', 'Batches up to 2,000 records', 'Full result history', 'Email support'],
+        'features' => [
+            'Everything in Free',
+            'Credits never expire',
+            'Batches of up to 5,000 records',
+            'Unavailable results cost nothing',
+        ],
         'sort_order' => 20,
     ],
     [
@@ -179,7 +193,12 @@ $plans = [
         'description' => 'For regular batch work.',
         'price_cents' => 4900,
         'credits' => 15000,
-        'features' => ['15,000 credits', 'Batches up to 5,000 records', 'Priority queue position', 'API access'],
+        'features' => [
+            'Everything in Starter',
+            'A better rate per credit',
+            'Three times the credits',
+            'Credits never expire',
+        ],
         'sort_order' => 30,
     ],
     [
@@ -188,7 +207,12 @@ $plans = [
         'description' => 'For teams running lists continuously.',
         'price_cents' => 14900,
         'credits' => 50000,
-        'features' => ['50,000 credits', 'Batches up to 5,000 records', 'Priority queue position', 'API access', 'Priority support'],
+        'features' => [
+            'Everything in Professional',
+            'The best rate per credit',
+            'Ten times the Starter credits',
+            'Credits never expire',
+        ],
         'sort_order' => 40,
     ],
 ];

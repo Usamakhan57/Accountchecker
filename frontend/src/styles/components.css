@@ -935,3 +935,136 @@
 .ac-amount--out {
   color: var(--ac-text);
 }
+
+/* Pricing ----------------------------------------------------------------- */
+
+.ac-pricing {
+  padding: var(--ac-space-10) 0 var(--ac-space-12);
+}
+
+.ac-pricing__intro {
+  max-width: 62ch;
+}
+
+.ac-pricing__intro p {
+  margin-top: var(--ac-space-3);
+  color: var(--ac-text-muted);
+}
+
+.ac-pricing__notice {
+  margin-top: var(--ac-space-6);
+  max-width: 78ch;
+}
+
+.ac-plan-grid {
+  display: grid;
+  gap: var(--ac-space-4);
+  margin-top: var(--ac-space-8);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.ac-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ac-space-4);
+  padding: var(--ac-space-5);
+  border: 1px solid var(--ac-border);
+  border-radius: var(--ac-radius-lg);
+  background: var(--ac-surface-raised);
+  box-shadow: var(--ac-shadow-sm);
+}
+
+/* The paid tiers carry the accent edge; the free tier reads as the baseline
+   rather than as a lesser version of the same offer. */
+.ac-plan--paid {
+  border-top: 3px solid var(--ac-indigo-500);
+}
+
+.ac-plan__name {
+  font-size: var(--ac-text-md);
+  margin: 0;
+}
+
+.ac-plan__price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: var(--ac-space-2) 0 0;
+  font-size: var(--ac-text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ac-plan__period {
+  font-size: var(--ac-text-xs);
+  font-weight: 500;
+  color: var(--ac-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ac-plan__credits {
+  margin: 0.125rem 0 0;
+  font-size: var(--ac-text-sm);
+  font-weight: 600;
+  color: var(--ac-accent);
+}
+
+.ac-plan__description {
+  margin: var(--ac-space-2) 0 0;
+  font-size: var(--ac-text-sm);
+  color: var(--ac-text-muted);
+}
+
+.ac-plan__features {
+  display: grid;
+  gap: var(--ac-space-2);
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--ac-text-sm);
+}
+
+.ac-plan__features li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  color: var(--ac-text-muted);
+}
+
+.ac-plan__features svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--ac-valid-text);
+}
+
+.ac-plan__footer {
+  margin-top: auto;
+}
+
+.ac-pricing__foot {
+  max-width: 72ch;
+  margin-top: var(--ac-space-10);
+}
+
+.ac-pricing__foot h2 {
+  font-size: var(--ac-text-md);
+}
+
+.ac-pricing__foot ul {
+  margin-top: var(--ac-space-3);
+  padding-left: 1.1rem;
+  font-size: var(--ac-text-sm);
+  color: var(--ac-text-muted);
+}
+
+.ac-pricing__foot li {
+  margin-bottom: var(--ac-space-2);
+}
+
+.ac-plan__rate {
+  margin: 0.125rem 0 0;
+  font-size: var(--ac-text-xs);
+  color: var(--ac-text-subtle);
+}

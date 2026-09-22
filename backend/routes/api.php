@@ -9,6 +9,7 @@ use AccountCheck\Controllers\ExportController;
 use AccountCheck\Controllers\HistoryController;
 use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\JobController;
+use AccountCheck\Controllers\PlanController;
 use AccountCheck\Controllers\ResultController;
 use AccountCheck\Controllers\ToolController;
 use AccountCheck\Controllers\WalletController;
@@ -92,6 +93,14 @@ return static function (Router $router): void {
         // client cannot change its own.
         $router->get('/wallet', [WalletController::class, 'index'], $authenticated);
         $router->get('/wallet/transactions', [WalletController::class, 'transactions'], $authenticated);
+
+        // Plans --------------------------------------------------------------
+        // The listing is public because prices are public. Checkout is
+        // authenticated and always refuses while no payment provider is
+        // configured: it cannot settle a payment, so it must not add credits.
+        $router->get('/plans', [PlanController::class, 'index']);
+        $router->get('/plans/{slug}', [PlanController::class, 'show']);
+        $router->post('/plans/{slug}/checkout', [PlanController::class, 'checkout'], $authenticated);
 
         // Free tools -------------------------------------------------------
         // No credits and no job: these process the user's own list locally

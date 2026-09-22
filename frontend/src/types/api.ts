@@ -315,6 +315,28 @@ export interface Plan {
   features: string[];
   is_active: boolean;
   sort_order: number;
+  is_free: boolean;
+  /** Cost of one credit in minor units, or null for a free plan. */
+  cents_per_credit: number | null;
+}
+
+/**
+ * Whether a plan can actually be bought.
+ *
+ * Travels with the catalogue rather than being fetched separately, because a
+ * price shown without this is misleading.
+ */
+export interface PaymentStatus {
+  configured: boolean;
+  driver: string | null;
+  currency: string;
+  reason: string;
+  contact_email: string | null;
+}
+
+export interface PlanCatalogue {
+  items: Plan[];
+  payments: PaymentStatus;
 }
 
 export interface Notification {

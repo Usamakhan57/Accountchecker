@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { LoadingState } from '@/components/states';
 import { AppLayout } from '@/layouts/AppLayout';
+import { AdaptiveLayout } from '@/layouts/AdaptiveLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { PublicLayout } from '@/layouts/PublicLayout';
 import { NotFoundPage } from '@/pages/NotFoundPage';
@@ -20,6 +21,7 @@ const HomePage = lazy(() => import('@/pages/public/HomePage').then((m) => ({ def
 const FeaturesPage = lazy(() => import('@/pages/public/FeaturesPage').then((m) => ({ default: m.FeaturesPage })));
 const FaqPage = lazy(() => import('@/pages/public/FaqPage').then((m) => ({ default: m.FaqPage })));
 const ContactPage = lazy(() => import('@/pages/public/ContactPage').then((m) => ({ default: m.ContactPage })));
+const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })));
@@ -71,6 +73,12 @@ export function AppRoutes() {
           <Route path="features" element={<FeaturesPage />} />
           <Route path="faq" element={<FaqPage />} />
           <Route path="contact" element={<ContactPage />} />
+        </Route>
+
+        {/* Pricing is reachable signed in or signed out and is the same page
+            either way, so its shell is chosen from the session. */}
+        <Route element={<AdaptiveLayout />}>
+          <Route path="pricing" element={<PricingPage />} />
         </Route>
 
         <Route element={<AuthLayout />}>
