@@ -805,3 +805,86 @@
   transform: translateY(-50%);
   pointer-events: none;
 }
+
+/* Radio and checkbox groups ---------------------------------------------- */
+.ac-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ac-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ac-choices > legend {
+  margin-bottom: var(--ac-space-2);
+  padding: 0;
+}
+
+.ac-choice {
+  display: flex;
+  gap: var(--ac-space-2);
+  align-items: flex-start;
+  padding: var(--ac-space-2) var(--ac-space-3);
+  background: var(--ac-surface-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--ac-radius-md);
+  cursor: pointer;
+  transition: border-color var(--ac-transition), background var(--ac-transition);
+}
+
+.ac-choice:hover {
+  border-color: var(--ac-border-strong);
+}
+
+.ac-choice:has(input:checked) {
+  background: var(--ac-accent-soft);
+  border-color: var(--ac-accent);
+}
+
+.ac-choice input {
+  margin-top: 2px;
+  accent-color: var(--ac-accent);
+}
+
+.ac-choice__label,
+.ac-choice__hint {
+  display: block;
+}
+
+.ac-choice__label {
+  font-size: var(--ac-text-sm);
+  font-weight: 550;
+}
+
+.ac-choice__hint {
+  font-size: var(--ac-text-xs);
+  color: var(--ac-text-subtle);
+}
+
+/* Generated name chips ---------------------------------------------------- */
+.ac-name-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ac-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ac-name-chip {
+  padding: var(--ac-space-1) var(--ac-space-3);
+  font-family: var(--ac-font-mono);
+  font-size: var(--ac-text-xs);
+  color: var(--ac-text);
+  background: var(--ac-surface-sunken);
+  border: 1px solid var(--ac-border);
+  border-radius: var(--ac-radius-pill, 999px);
+  cursor: pointer;
+  transition: border-color var(--ac-transition), background var(--ac-transition);
+}
+
+.ac-name-chip:hover {
+  background: var(--ac-accent-soft);
+  border-color: var(--ac-accent);
+}

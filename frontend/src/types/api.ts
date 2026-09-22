@@ -223,6 +223,48 @@ export interface ExportRecord {
   download_path: string | null;
 }
 
+/* Free tools ------------------------------------------------------------- */
+
+export type DuplicateMode = 'exact' | 'relaxed' | 'checker';
+
+export interface DuplicateGroup {
+  value: string;
+  count: number;
+  /** A few of the original lines that collapsed into this value. */
+  lines: string[];
+  positions: number[];
+}
+
+export interface DuplicateReport {
+  mode: DuplicateMode;
+  checker: string | null;
+  total_lines: number;
+  unique_count: number;
+  /** Lines that would be removed, not the number of repeated values. */
+  duplicate_count: number;
+  repeated_values: number;
+  unreadable_count: number;
+  truncated: boolean;
+  max_lines: number;
+  unique: string[];
+  groups: DuplicateGroup[];
+}
+
+export type NameStyle = 'plain' | 'numbers' | 'years' | 'separators' | 'prefixes' | 'suffixes';
+
+export interface NameSuggestions {
+  names: string[];
+  count: number;
+  rejected_count: number;
+  shortened_words: { word: string; shortened: string }[];
+  /** The same seed reproduces the same list. */
+  seed: number;
+  platform: string | null;
+  styles: NameStyle[];
+  rules: { min_length: number; max_length: number; allowed: string } | null;
+  notice: string;
+}
+
 export interface Wallet {
   balance: number;
   reserved: number;

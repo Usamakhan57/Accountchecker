@@ -47,6 +47,9 @@ return [
         'password_reset' => ['attempts' => 5, 'window_minutes' => 60],
         'checker_start' => ['attempts' => 30, 'window_minutes' => 10],
         'support' => ['attempts' => 20, 'window_minutes' => 60],
+        // The free tools cost no credits, so a limit is the only thing
+        // standing between one account and everyone else's CPU.
+        'tools' => ['attempts' => 60, 'window_minutes' => 1],
     ],
 
     'storage' => [

@@ -48,6 +48,12 @@ return [
         'max_runtime_seconds' => Env::int('WORKER_MAX_RUNTIME_SECONDS', 3600),
     ],
 
+    // The free tools (duplicate finder, name generator). They cost no credits
+    // and start no job, so the only bound is the size of the input.
+    'tools' => [
+        'max_lines' => Env::int('TOOLS_MAX_LINES', 20000),
+    ],
+
     'uploads' => [
         'max_bytes' => Env::int('UPLOAD_MAX_BYTES', 5_242_880),
         'allowed_extensions' => Env::list('UPLOAD_ALLOWED_EXTENSIONS', 'txt,csv'),

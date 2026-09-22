@@ -41,6 +41,12 @@ const PlatformCheckersPage = lazy(() =>
 const CheckerWorkspacePage = lazy(() =>
   import('@/pages/app/CheckerWorkspacePage').then((m) => ({ default: m.CheckerWorkspacePage })),
 );
+const DuplicateCheckerPage = lazy(() =>
+  import('@/pages/app/DuplicateCheckerPage').then((m) => ({ default: m.DuplicateCheckerPage })),
+);
+const NameGeneratorPage = lazy(() =>
+  import('@/pages/app/NameGeneratorPage').then((m) => ({ default: m.NameGeneratorPage })),
+);
 const JobsPage = lazy(() => import('@/pages/app/JobsPage').then((m) => ({ default: m.JobsPage })));
 const JobDetailPage = lazy(() => import('@/pages/app/JobDetailPage').then((m) => ({ default: m.JobDetailPage })));
 const ResultsPage = lazy(() => import('@/pages/app/ResultsPage').then((m) => ({ default: m.ResultsPage })));
@@ -88,6 +94,9 @@ export function AppRoutes() {
                 navigation rail's platform entry resolves to the picker rather
                 than to a checker called "platform". */}
             <Route path="checkers/platform" element={<PlatformCheckersPage />} />
+            {/* Free tools. Static segments, so they resolve ahead of :slug. */}
+            <Route path="checkers/duplicates" element={<DuplicateCheckerPage />} />
+            <Route path="checkers/name-generator" element={<NameGeneratorPage />} />
             <Route path="checkers/:slug" element={<CheckerWorkspacePage />} />
 
             <Route path="jobs" element={<JobsPage />} />

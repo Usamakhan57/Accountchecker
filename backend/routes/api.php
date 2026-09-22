@@ -10,6 +10,7 @@ use AccountCheck\Controllers\HistoryController;
 use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\JobController;
 use AccountCheck\Controllers\ResultController;
+use AccountCheck\Controllers\ToolController;
 use AccountCheck\Controllers\UserController;
 use AccountCheck\Core\Router;
 use AccountCheck\Middleware\AdminMiddleware;
@@ -83,6 +84,12 @@ return static function (Router $router): void {
         $router->get('/history', [HistoryController::class, 'index'], $authenticated);
         $router->delete('/history', [HistoryController::class, 'clear'], $authenticated);
         $router->delete('/history/{id}', [HistoryController::class, 'destroy'], $authenticated);
+
+        // Free tools -------------------------------------------------------
+        // No credits and no job: these process the user's own list locally
+        // and verify nothing, so there is no authorized source involved.
+        $router->post('/tools/duplicates', [ToolController::class, 'duplicates'], $authenticated);
+        $router->post('/tools/name-generator', [ToolController::class, 'names'], $authenticated);
 
         // Exports ---------------------------------------------------------
         // Addressed by uuid and resolved through the database, which carries
