@@ -165,6 +165,63 @@ export interface CheckResult {
   checked_at: string;
 }
 
+/** Filters shared by the results table and the export it produces. */
+export interface ResultFilters {
+  page?: number;
+  per_page?: number;
+  status?: ResultStatus | '';
+  checker?: string;
+  search?: string;
+  /** YYYY-MM-DD, inclusive. */
+  from?: string;
+  /** YYYY-MM-DD, inclusive. */
+  to?: string;
+  sort?: 'checked_at' | 'input' | 'status' | 'response_time';
+  direction?: 'asc' | 'desc';
+}
+
+export interface ResultsPage extends Paginated<CheckResult> {
+  /** Counts across the whole filtered set, not just the current page. */
+  breakdown: ResultBreakdown;
+}
+
+export interface JobResultsPage extends ResultsPage {
+  job: Job;
+}
+
+export interface HistoryEntry {
+  id: number;
+  job_id: number | null;
+  checker_slug: string;
+  checker_label: string;
+  status: JobStatus;
+  total_items: number;
+  successful_items: number;
+  failed_items: number;
+  credits_spent: number;
+  created_at: string;
+}
+
+export interface HistoryPage extends Paginated<HistoryEntry> {
+  totals: { jobs: number; records: number; credits: number };
+}
+
+export type ExportFormat = 'csv' | 'txt';
+
+export interface ExportRecord {
+  uuid: string;
+  job_id: number | null;
+  format: ExportFormat;
+  filename: string;
+  row_count: number;
+  size_bytes: number;
+  status: 'READY' | 'EXPIRED' | 'DELETED';
+  expires_at: string;
+  created_at: string;
+  /** Null once the export has expired; the file is gone by then. */
+  download_path: string | null;
+}
+
 export interface Wallet {
   balance: number;
   reserved: number;

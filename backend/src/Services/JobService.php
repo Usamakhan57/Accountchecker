@@ -295,6 +295,19 @@ final class JobService
         return $paginator->envelope(Presenter::jobs($page['items']), $page['total']);
     }
 
+    /**
+     * The job row, or a 404 if it is not this user's.
+     *
+     * Public so the results and export endpoints can resolve a reference to an
+     * owned job without repeating the ownership check.
+     *
+     * @return array<string, mixed>
+     */
+    public function findOwned(int $userId, string $reference): array
+    {
+        return $this->requireJob($userId, $reference);
+    }
+
     /** @return array<string, mixed> */
     public function show(int $userId, string $reference): array
     {

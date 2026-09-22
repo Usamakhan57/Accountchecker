@@ -6,6 +6,7 @@ namespace AccountCheck\Queue;
 
 use AccountCheck\Core\Config;
 use AccountCheck\Repositories\JobRepository;
+use AccountCheck\Services\ExportService;
 use AccountCheck\Support\Logger;
 use Throwable;
 
@@ -39,6 +40,7 @@ final class WorkerRuntime
     public function __construct(
         private readonly JobProcessor $processor,
         private readonly JobRepository $jobs,
+        private readonly ExportService $exports,
         private readonly Config $config,
         private readonly Logger $logger,
     ) {
@@ -74,6 +76,8 @@ final class WorkerRuntime
         $this->logger->info('Worker started', ['worker_id' => $this->workerId, 'pid' => getmypid() ?: 0]);
         $this->heartbeat();
 
+        // Zero, so the first loop sweeps abandoned work and prunes before it
+        // claims anything.
         $lastRecovery = 0;
 
         while (!$this->stopRequested) {
@@ -88,6 +92,7 @@ final class WorkerRuntime
 
             if (time() - $lastRecovery >= $recoveryInterval) {
                 $this->recoverStale($quiet);
+                $this->pruneExports($quiet);
                 $lastRecovery = time();
             }
 
@@ -183,6 +188,28 @@ final class WorkerRuntime
             $recovered['jobs'],
             $recovered['items'],
         ));
+    }
+
+    /**
+     * Deletes export files that have outlived their retention.
+     *
+     * Housekeeping belongs here rather than in a request: nobody should wait on
+     * it, and it has to happen whether or not anyone is signed in.
+     */
+    private function pruneExports(bool $quiet): void
+    {
+        try {
+            $pruned = $this->exports->pruneExpired();
+        } catch (Throwable $e) {
+            $this->logger->warning('Export pruning failed', ['error' => $e->getMessage()]);
+
+            return;
+        }
+
+        if ($pruned > 0) {
+            $this->logger->info('Pruned expired exports', ['count' => $pruned]);
+            $this->say($quiet, sprintf('Removed %d expired export file(s).', $pruned));
+        }
     }
 
     private function heartbeat(): void

@@ -54,7 +54,10 @@ return [
     ],
 
     'exports' => [
+        // Generated files are deleted once they are this old; the worker
+        // prunes them, so a list of somebody's addresses does not sit on disk.
         'retention_hours' => Env::int('EXPORT_RETENTION_HOURS', 48),
+        'max_per_hour' => Env::int('EXPORT_MAX_PER_HOUR', 20),
         'formats' => ['csv', 'txt'],
     ],
 

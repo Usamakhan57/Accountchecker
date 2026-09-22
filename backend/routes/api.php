@@ -5,8 +5,11 @@ declare(strict_types=1);
 use AccountCheck\Controllers\AuthController;
 use AccountCheck\Controllers\CheckerController;
 use AccountCheck\Controllers\DashboardController;
+use AccountCheck\Controllers\ExportController;
+use AccountCheck\Controllers\HistoryController;
 use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\JobController;
+use AccountCheck\Controllers\ResultController;
 use AccountCheck\Controllers\UserController;
 use AccountCheck\Core\Router;
 use AccountCheck\Middleware\AdminMiddleware;
@@ -69,6 +72,25 @@ return static function (Router $router): void {
         $router->get('/jobs/{id}', [JobController::class, 'show'], $authenticated);
         $router->get('/jobs/{id}/progress', [JobController::class, 'progress'], $authenticated);
         $router->post('/jobs/{id}/cancel', [JobController::class, 'cancel'], $authenticated);
+        $router->get('/jobs/{id}/results', [ResultController::class, 'forJob'], $authenticated);
+        $router->post('/jobs/{id}/export', [ExportController::class, 'storeForJob'], $authenticated);
+
+        // Results and history --------------------------------------------
+        // Both are paged in the database. Filters and sort keys arrive as
+        // query parameters and are resolved against allow-lists, never
+        // concatenated into SQL.
+        $router->get('/results', [ResultController::class, 'index'], $authenticated);
+        $router->get('/history', [HistoryController::class, 'index'], $authenticated);
+        $router->delete('/history', [HistoryController::class, 'clear'], $authenticated);
+        $router->delete('/history/{id}', [HistoryController::class, 'destroy'], $authenticated);
+
+        // Exports ---------------------------------------------------------
+        // Addressed by uuid and resolved through the database, which carries
+        // the owner; no path or filename from a request reaches the disk.
+        $router->get('/exports', [ExportController::class, 'index'], $authenticated);
+        $router->post('/exports', [ExportController::class, 'store'], $authenticated);
+        $router->get('/exports/{uuid}/download', [ExportController::class, 'download'], $authenticated);
+        $router->delete('/exports/{uuid}', [ExportController::class, 'destroy'], $authenticated);
 
         // Admin ----------------------------------------------------------
         // Routes are added by later phases; the middleware stack is fixed here
