@@ -55,6 +55,7 @@ const ADMIN_NAV: NavSection = {
     { to: '/admin', label: 'Overview', icon: 'admin', end: true },
     { to: '/admin/users', label: 'Users', icon: 'users' },
     { to: '/admin/jobs', label: 'Jobs', icon: 'jobs' },
+    { to: '/admin/support', label: 'Support', icon: 'support' },
     { to: '/admin/wallet', label: 'Wallet', icon: 'wallet' },
     { to: '/admin/plans', label: 'Plans', icon: 'pricing' },
     { to: '/admin/checkers', label: 'Checkers', icon: 'checkers' },

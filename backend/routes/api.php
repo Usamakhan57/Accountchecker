@@ -8,6 +8,7 @@ use AccountCheck\Controllers\Admin\LogController as AdminLogController;
 use AccountCheck\Controllers\Admin\OverviewController as AdminOverviewController;
 use AccountCheck\Controllers\Admin\PlanController as AdminPlanController;
 use AccountCheck\Controllers\Admin\SettingsController as AdminSettingsController;
+use AccountCheck\Controllers\Admin\SupportController as AdminSupportController;
 use AccountCheck\Controllers\Admin\UserController as AdminUserController;
 use AccountCheck\Controllers\Admin\WalletController as AdminWalletController;
 use AccountCheck\Controllers\AuthController;
@@ -17,8 +18,10 @@ use AccountCheck\Controllers\ExportController;
 use AccountCheck\Controllers\HistoryController;
 use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\JobController;
+use AccountCheck\Controllers\NotificationController;
 use AccountCheck\Controllers\PlanController;
 use AccountCheck\Controllers\ResultController;
+use AccountCheck\Controllers\SupportController;
 use AccountCheck\Controllers\ToolController;
 use AccountCheck\Controllers\WalletController;
 use AccountCheck\Controllers\UserController;
@@ -110,6 +113,25 @@ return static function (Router $router): void {
         $router->get('/plans/{slug}', [PlanController::class, 'show']);
         $router->post('/plans/{slug}/checkout', [PlanController::class, 'checkout'], $authenticated);
 
+        // Notifications ------------------------------------------------------
+        // Read and dismiss only. Notifications are written by the application
+        // when something happens to the user's own work; no request creates
+        // one, so there is no endpoint that would let a client notify anybody.
+        $router->get('/notifications', [NotificationController::class, 'index'], $authenticated);
+        $router->post('/notifications/read-all', [NotificationController::class, 'markAllRead'], $authenticated);
+        $router->post('/notifications/{id}/read', [NotificationController::class, 'markRead'], $authenticated);
+        $router->delete('/notifications/{id}', [NotificationController::class, 'destroy'], $authenticated);
+
+        // Support ------------------------------------------------------------
+        // Every handler is scoped to the authenticated owner inside the query,
+        // and a ticket that is not theirs is reported as missing rather than
+        // forbidden, so a uuid cannot be probed.
+        $router->get('/support/tickets', [SupportController::class, 'index'], $authenticated);
+        $router->post('/support/tickets', [SupportController::class, 'store'], $authenticated);
+        $router->get('/support/tickets/{id}', [SupportController::class, 'show'], $authenticated);
+        $router->post('/support/tickets/{id}/reply', [SupportController::class, 'reply'], $authenticated);
+        $router->post('/support/tickets/{id}/close', [SupportController::class, 'close'], $authenticated);
+
         // Administration -----------------------------------------------------
         // The whole branch is behind AdminMiddleware, which rejects a
         // non-administrator with 404 rather than 403 so the surface is not
@@ -133,6 +155,11 @@ return static function (Router $router): void {
 
         $router->get('/admin/plans', [AdminPlanController::class, 'index'], $admin);
         $router->put('/admin/plans/{slug}', [AdminPlanController::class, 'update'], $admin);
+
+        $router->get('/admin/support', [AdminSupportController::class, 'index'], $admin);
+        $router->get('/admin/support/{id}', [AdminSupportController::class, 'show'], $admin);
+        $router->post('/admin/support/{id}/reply', [AdminSupportController::class, 'reply'], $admin);
+        $router->put('/admin/support/{id}/status', [AdminSupportController::class, 'updateStatus'], $admin);
 
         $router->get('/admin/logs', [AdminLogController::class, 'index'], $admin);
 

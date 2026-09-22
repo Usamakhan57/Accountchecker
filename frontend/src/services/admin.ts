@@ -3,10 +3,13 @@ import type {
   AdminChecker,
   AdminJobList,
   AdminOverview,
+  AdminTicket,
+  AdminTicketThread,
   AdminTransactionList,
   AdminUserDetail,
   AdminUserList,
   AuditList,
+  Paginated,
   PaymentStatus,
   Plan,
   SystemSetting,
@@ -141,4 +144,34 @@ export function listSettings(
 
 export function updateSetting(key: string, value: string) {
   return request('/api/admin/settings', { method: 'PUT', body: { key, value } });
+}
+
+/* Support queue ----------------------------------------------------------- */
+
+export function listTickets(
+  options: { page?: number; per_page?: number; status?: string } = {},
+  signal?: AbortSignal,
+): Promise<Paginated<AdminTicket>> {
+  return request<Paginated<AdminTicket>>('/api/admin/support', {
+    query: { page: options.page, per_page: options.per_page, status: options.status || undefined },
+    signal,
+  });
+}
+
+export function getTicket(uuid: string, signal?: AbortSignal): Promise<AdminTicketThread> {
+  return request<AdminTicketThread>(`/api/admin/support/${encodeURIComponent(uuid)}`, { signal });
+}
+
+export function replyToTicket(uuid: string, body: string): Promise<AdminTicketThread> {
+  return request<AdminTicketThread>(`/api/admin/support/${encodeURIComponent(uuid)}/reply`, {
+    method: 'POST',
+    body: { body },
+  });
+}
+
+export function setTicketStatus(uuid: string, status: string) {
+  return request(`/api/admin/support/${encodeURIComponent(uuid)}/status`, {
+    method: 'PUT',
+    body: { status },
+  });
 }

@@ -360,15 +360,41 @@ export interface SupportTicket {
   message_count: number;
   created_at: string;
   updated_at: string;
+  last_reply_at: string | null;
+  /** False once a ticket is closed; the reply box hides rather than failing. */
+  can_reply: boolean;
 }
 
 export interface SupportMessage {
   id: number;
   ticket_id: number;
+  /**
+   * A staff reply reads as the team rather than the agent who wrote it, so no
+   * individual support account is exposed to a customer.
+   */
   author_name: string;
-  author_role: Role;
+  is_staff: boolean;
   body: string;
   created_at: string;
+}
+
+export interface SupportThread {
+  ticket: SupportTicket;
+  messages: SupportMessage[];
+}
+
+/** A queue row, which carries the customer. */
+export interface AdminTicket extends SupportTicket {
+  user: { uuid: string; name: string; email: string };
+}
+
+export interface AdminTicketThread {
+  ticket: AdminTicket;
+  messages: SupportMessage[];
+}
+
+export interface NotificationList extends Paginated<Notification> {
+  unread_count: number;
 }
 
 export interface DashboardStats {

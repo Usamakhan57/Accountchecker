@@ -75,11 +75,24 @@ const AdminPlansPage = lazy(() =>
 const AdminCheckersPage = lazy(() =>
   import('@/pages/admin/AdminCheckersPage').then((m) => ({ default: m.AdminCheckersPage })),
 );
+const AdminSupportPage = lazy(() =>
+  import('@/pages/admin/AdminSupportPage').then((m) => ({ default: m.AdminSupportPage })),
+);
+const AdminTicketPage = lazy(() =>
+  import('@/pages/admin/AdminTicketPage').then((m) => ({ default: m.AdminTicketPage })),
+);
 const AdminLogsPage = lazy(() =>
   import('@/pages/admin/AdminLogsPage').then((m) => ({ default: m.AdminLogsPage })),
 );
 const AdminSettingsPage = lazy(() =>
   import('@/pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })),
+);
+const NotificationsPage = lazy(() =>
+  import('@/pages/app/NotificationsPage').then((m) => ({ default: m.NotificationsPage })),
+);
+const SupportPage = lazy(() => import('@/pages/app/SupportPage').then((m) => ({ default: m.SupportPage })));
+const SupportTicketPage = lazy(() =>
+  import('@/pages/app/SupportTicketPage').then((m) => ({ default: m.SupportTicketPage })),
 );
 const SettingsPage = lazy(() => import('@/pages/app/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
@@ -140,6 +153,10 @@ export function AppRoutes() {
             <Route path="results" element={<ResultsPage />} />
             <Route path="history" element={<HistoryPage />} />
             <Route path="wallet" element={<WalletPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="support" element={<SupportPage />} />
+            <Route path="support/:id" element={<SupportTicketPage />} />
+
             <Route path="settings" element={<SettingsPage />} />
             <Route path="profile" element={<SettingsPage />} />
 
@@ -154,6 +171,8 @@ export function AppRoutes() {
               <Route path="admin/wallet" element={<AdminWalletPage />} />
               <Route path="admin/plans" element={<AdminPlansPage />} />
               <Route path="admin/checkers" element={<AdminCheckersPage />} />
+              <Route path="admin/support" element={<AdminSupportPage />} />
+              <Route path="admin/support/:id" element={<AdminTicketPage />} />
               <Route path="admin/logs" element={<AdminLogsPage />} />
               <Route path="admin/settings" element={<AdminSettingsPage />} />
             </Route>
