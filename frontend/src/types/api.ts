@@ -161,6 +161,7 @@ export interface CheckResult {
   reason: string | null;
   source: string;
   checker_slug: string;
+  checker_label: string;
   response_time_ms: number | null;
   checked_at: string;
 }

@@ -34,6 +34,17 @@ const VerifyEmailPage = lazy(() =>
 );
 
 const DashboardPage = lazy(() => import('@/pages/app/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const CheckersPage = lazy(() => import('@/pages/app/CheckersPage').then((m) => ({ default: m.CheckersPage })));
+const PlatformCheckersPage = lazy(() =>
+  import('@/pages/app/CheckersPage').then((m) => ({ default: m.PlatformCheckersPage })),
+);
+const CheckerWorkspacePage = lazy(() =>
+  import('@/pages/app/CheckerWorkspacePage').then((m) => ({ default: m.CheckerWorkspacePage })),
+);
+const JobsPage = lazy(() => import('@/pages/app/JobsPage').then((m) => ({ default: m.JobsPage })));
+const JobDetailPage = lazy(() => import('@/pages/app/JobDetailPage').then((m) => ({ default: m.JobDetailPage })));
+const ResultsPage = lazy(() => import('@/pages/app/ResultsPage').then((m) => ({ default: m.ResultsPage })));
+const HistoryPage = lazy(() => import('@/pages/app/HistoryPage').then((m) => ({ default: m.HistoryPage })));
 const SettingsPage = lazy(() => import('@/pages/app/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
 function RouteFallback() {
@@ -71,6 +82,18 @@ export function AppRoutes() {
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
             <Route path="dashboard" element={<DashboardPage />} />
+
+            <Route path="checkers" element={<CheckersPage />} />
+            {/* A static segment, so it is matched ahead of :slug and the
+                navigation rail's platform entry resolves to the picker rather
+                than to a checker called "platform". */}
+            <Route path="checkers/platform" element={<PlatformCheckersPage />} />
+            <Route path="checkers/:slug" element={<CheckerWorkspacePage />} />
+
+            <Route path="jobs" element={<JobsPage />} />
+            <Route path="jobs/:id" element={<JobDetailPage />} />
+            <Route path="results" element={<ResultsPage />} />
+            <Route path="history" element={<HistoryPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="profile" element={<SettingsPage />} />
           </Route>

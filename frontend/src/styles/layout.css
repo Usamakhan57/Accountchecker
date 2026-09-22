@@ -120,6 +120,9 @@
 }
 
 .ac-sidebar__wallet-label {
+  /* Both are spans, so they need to be block for the stacked layout and the
+     margin below to apply at all. */
+  display: block;
   font-size: var(--ac-text-2xs);
   font-weight: 650;
   letter-spacing: 0.06em;
@@ -128,6 +131,7 @@
 }
 
 .ac-sidebar__wallet-value {
+  display: block;
   margin-top: 2px;
   font-size: var(--ac-text-lg);
   font-weight: 680;
