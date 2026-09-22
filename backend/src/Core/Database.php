@@ -52,6 +52,10 @@ class Database
                     PDO::ATTR_STRINGIFY_FETCHES => false,
                 ],
             );
+            // Timestamps are written as UTC by PHP (Repository::now) and by the
+            // column defaults. Pinning the session zone keeps those two agreeing
+            // whatever the database server's local zone happens to be.
+            $this->pdo->exec("SET time_zone = '+00:00'");
         } catch (PDOException $e) {
             // The driver message can carry credentials; it goes to the log only.
             throw new DatabaseException('Database connection failed.', 0, $e);

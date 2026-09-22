@@ -7,6 +7,7 @@ namespace AccountCheck\Controllers;
 use AccountCheck\Checkers\CheckerRegistry;
 use AccountCheck\Core\Request;
 use AccountCheck\Core\Response;
+use AccountCheck\Services\JobService;
 
 /**
  * The checker catalogue.
@@ -18,8 +19,10 @@ use AccountCheck\Core\Response;
  */
 final class CheckerController extends Controller
 {
-    public function __construct(private readonly CheckerRegistry $registry)
-    {
+    public function __construct(
+        private readonly CheckerRegistry $registry,
+        private readonly JobService $jobs,
+    ) {
     }
 
     public function types(Request $request): Response
@@ -52,7 +55,8 @@ final class CheckerController extends Controller
      *
      * The workspace calls this before the review step so the user sees the
      * de-duplicated count, the malformed lines and the exact credit cost before
-     * committing to anything.
+     * committing to anything. It runs the same preparation the submission path
+     * runs, so the numbers shown here are the numbers that will be charged.
      */
     public function validateInput(Request $request): Response
     {
@@ -60,51 +64,26 @@ final class CheckerController extends Controller
         $capabilities = $checker->getCapabilities();
 
         $input = $this->validate($request, [
-            'input' => 'required|string|max:1000000',
+            'input' => 'required|string|max:2000000',
         ]);
 
-        $lines = \AccountCheck\Support\Str::lines((string) $input['input'], $capabilities->maxBatchSize * 2);
-
-        $valid = [];
-        $invalid = [];
-        $seen = [];
-        $duplicates = 0;
-
-        foreach ($lines as $line) {
-            $validation = $checker->validateInput($line);
-
-            if (!$validation->isValid) {
-                if (count($invalid) < 100) {
-                    $invalid[] = ['input' => \AccountCheck\Support\Str::truncate($line, 120), 'reason' => $validation->reason];
-                }
-                continue;
-            }
-
-            if (isset($seen[$validation->normalized])) {
-                $duplicates++;
-                continue;
-            }
-
-            $seen[$validation->normalized] = true;
-            $valid[] = $validation->normalized;
-        }
-
-        $acceptedCount = min(count($valid), $capabilities->maxBatchSize);
+        $prepared = $this->jobs->prepareInput($checker, (string) $input['input'], $capabilities->maxBatchSize);
+        $accepted = count($prepared['items']);
 
         return Response::success([
-            'total_lines' => count($lines),
-            'valid_count' => count($valid),
-            'invalid_count' => count($lines) - count($valid) - $duplicates,
-            'duplicate_count' => $duplicates,
-            'accepted_count' => $acceptedCount,
-            'over_limit' => count($valid) > $capabilities->maxBatchSize,
+            'total_lines' => $prepared['total_lines'],
+            'valid_count' => $accepted,
+            'invalid_count' => $prepared['invalid_count'],
+            'duplicate_count' => $prepared['duplicate_count'],
+            'accepted_count' => $accepted,
+            'over_limit' => $prepared['over_limit'],
             'max_batch_size' => $capabilities->maxBatchSize,
             'credit_cost_each' => $capabilities->creditCost,
-            'credits_required' => $acceptedCount * $capabilities->creditCost,
+            'credits_required' => $accepted * $capabilities->creditCost,
             // A sample, not the whole list: a 5,000-line paste does not need to
             // travel back to the browser to be confirmed.
-            'sample' => array_slice($valid, 0, 10),
-            'invalid_samples' => $invalid,
+            'sample' => array_slice(array_column($prepared['items'], 'normalized'), 0, 10),
+            'invalid_samples' => $prepared['invalid_samples'],
             'configured' => $capabilities->configured,
             'mode' => $capabilities->mode,
         ], 'Input reviewed');

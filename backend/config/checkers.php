@@ -29,9 +29,21 @@ return [
     ],
 
     'queue' => [
+        // How many records a worker claims at a time. Smaller chunks mean
+        // smoother progress and a shorter interruption on shutdown; larger
+        // ones mean fewer round trips.
         'batch_size' => Env::int('QUEUE_BATCH_SIZE', 50),
         'max_job_items' => Env::int('QUEUE_MAX_JOB_ITEMS', 5000),
+        // Rows per multi-row INSERT when a job's records are written.
+        'insert_chunk_size' => Env::int('QUEUE_INSERT_CHUNK_SIZE', 500),
+        // Attempts per record before it is closed out as an error.
+        'max_item_attempts' => Env::int('QUEUE_MAX_ITEM_ATTEMPTS', 3),
+        // Open jobs one account may have at once, so a single user cannot fill
+        // the queue for everyone else.
+        'max_active_jobs_per_user' => Env::int('QUEUE_MAX_ACTIVE_JOBS_PER_USER', 3),
         'worker_sleep_seconds' => Env::int('WORKER_SLEEP_SECONDS', 3),
+        // A claim older than this is treated as abandoned and swept back into
+        // the queue, which is what bounds the damage a killed worker can do.
         'lock_ttl_seconds' => Env::int('WORKER_LOCK_TTL_SECONDS', 300),
         'max_runtime_seconds' => Env::int('WORKER_MAX_RUNTIME_SECONDS', 3600),
     ],

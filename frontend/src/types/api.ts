@@ -89,9 +89,65 @@ export interface Job {
   credits_reserved: number;
   credits_spent: number;
   error_message: string | null;
+  source: 'PASTE' | 'UPLOAD' | 'API';
   created_at: string;
   started_at: string | null;
   completed_at: string | null;
+}
+
+/** Counts per result status for one job. */
+export type ResultBreakdown = Record<ResultStatus, number>;
+
+export interface JobDetail extends Job {
+  breakdown: ResultBreakdown;
+  options: Record<string, unknown>;
+}
+
+/**
+ * The polling payload.
+ *
+ * Deliberately smaller than Job: the workspace asks for this every couple of
+ * seconds while a job runs, and stops as soon as `is_finished` is true.
+ */
+export interface JobProgress {
+  id: number;
+  uuid: string;
+  status: JobStatus;
+  total_items: number;
+  processed_items: number;
+  successful_items: number;
+  failed_items: number;
+  progress_percent: number;
+  credits_reserved: number;
+  credits_spent: number;
+  error_message: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  is_finished: boolean;
+}
+
+/** What the review step shows before any credits are committed. */
+export interface InputReview {
+  total_lines: number;
+  valid_count: number;
+  invalid_count: number;
+  duplicate_count: number;
+  accepted_count: number;
+  over_limit: boolean;
+  max_batch_size: number;
+  credit_cost_each: number;
+  credits_required: number;
+  sample: string[];
+  invalid_samples: { input: string; reason: string | null }[];
+  configured: boolean;
+  mode: 'mock' | 'production';
+}
+
+export interface JobSubmission {
+  job: Job;
+  skipped: { invalid: number; duplicate: number };
+  mode: 'mock' | 'production';
+  configured: boolean;
 }
 
 export type ResultStatus = 'VALID' | 'INVALID' | 'UNKNOWN' | 'ERROR' | 'UNAVAILABLE';

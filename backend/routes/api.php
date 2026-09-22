@@ -6,6 +6,7 @@ use AccountCheck\Controllers\AuthController;
 use AccountCheck\Controllers\CheckerController;
 use AccountCheck\Controllers\DashboardController;
 use AccountCheck\Controllers\HealthController;
+use AccountCheck\Controllers\JobController;
 use AccountCheck\Controllers\UserController;
 use AccountCheck\Core\Router;
 use AccountCheck\Middleware\AdminMiddleware;
@@ -58,6 +59,16 @@ return static function (Router $router): void {
         $router->get('/checker/types', [CheckerController::class, 'types'], $authenticated);
         $router->get('/checker/types/{slug}', [CheckerController::class, 'show'], $authenticated);
         $router->post('/checker/{slug}/validate', [CheckerController::class, 'validateInput'], $authenticated);
+        $router->post('/checker/{slug}/start', [JobController::class, 'start'], $authenticated);
+
+        // Jobs ------------------------------------------------------------
+        // A job is started above and then polled here; nothing in this group
+        // runs a check itself. {id} accepts either the numeric id or the uuid,
+        // and every handler is scoped to the authenticated owner.
+        $router->get('/jobs', [JobController::class, 'index'], $authenticated);
+        $router->get('/jobs/{id}', [JobController::class, 'show'], $authenticated);
+        $router->get('/jobs/{id}/progress', [JobController::class, 'progress'], $authenticated);
+        $router->post('/jobs/{id}/cancel', [JobController::class, 'cancel'], $authenticated);
 
         // Admin ----------------------------------------------------------
         // Routes are added by later phases; the middleware stack is fixed here
