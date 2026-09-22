@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use AccountCheck\Controllers\AuthController;
+use AccountCheck\Controllers\CheckerController;
 use AccountCheck\Controllers\DashboardController;
 use AccountCheck\Controllers\HealthController;
 use AccountCheck\Controllers\UserController;
@@ -52,6 +53,11 @@ return static function (Router $router): void {
 
         // Dashboard ------------------------------------------------------
         $router->get('/dashboard', [DashboardController::class, 'index'], $authenticated);
+
+        // Checkers -------------------------------------------------------
+        $router->get('/checker/types', [CheckerController::class, 'types'], $authenticated);
+        $router->get('/checker/types/{slug}', [CheckerController::class, 'show'], $authenticated);
+        $router->post('/checker/{slug}/validate', [CheckerController::class, 'validateInput'], $authenticated);
 
         // Admin ----------------------------------------------------------
         // Routes are added by later phases; the middleware stack is fixed here

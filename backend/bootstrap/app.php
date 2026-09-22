@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use AccountCheck\Checkers\HttpClient;
 use AccountCheck\Core\Application;
 use AccountCheck\Core\Config;
 use AccountCheck\Core\Container;
@@ -45,6 +46,16 @@ $container->singleton(Logger::class, static fn (Container $c): Logger => new Log
 
 $container->singleton(Database::class, static fn (): Database => new Database(
     $config->array('database'),
+));
+
+// The checker HTTP client needs its timeouts and retry policy from config, so
+// it is bound explicitly rather than autowired.
+$container->singleton(HttpClient::class, static fn (Container $c): HttpClient => new HttpClient(
+    $c->get(Logger::class),
+    $config->int('checkers.http.timeout', 15),
+    $config->int('checkers.http.max_retries', 3),
+    $config->int('checkers.http.retry_base_delay_ms', 500),
+    $config->string('checkers.http.user_agent', 'AccountCheck/1.0'),
 ));
 
 $container->singleton(Router::class, static function () use ($basePath): Router {
