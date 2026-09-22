@@ -32,3 +32,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Test environment (may contain a local database password)
+backend/.env.testing
