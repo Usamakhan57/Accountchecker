@@ -1,0 +1,34 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build output
+frontend/dist/
+frontend/.vite/
+frontend/node_modules/
+
+# Runtime storage
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+backend/storage/exports/*
+!backend/storage/exports/.gitkeep
+
+# Tooling
+.phpunit.result.cache
+coverage/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp

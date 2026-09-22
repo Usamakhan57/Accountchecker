@@ -1,0 +1,25 @@
+# AccountCheck
+# Marketing pages are indexable. Everything behind authentication is not.
+
+User-agent: *
+Allow: /$
+Allow: /features
+Allow: /pricing
+Allow: /faq
+Allow: /contact
+
+Disallow: /dashboard
+Disallow: /checkers
+Disallow: /jobs
+Disallow: /results
+Disallow: /history
+Disallow: /wallet
+Disallow: /settings
+Disallow: /profile
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://app.example.com/sitemap.xml

@@ -1,0 +1,153 @@
+/* Reset and element defaults. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--ac-bg);
+  color: var(--ac-text);
+  font-family: var(--ac-font-sans);
+  font-size: var(--ac-text-base);
+  line-height: var(--ac-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: var(--ac-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--ac-leading-tight);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: var(--ac-text-2xl); }
+h2 { font-size: var(--ac-text-xl); }
+h3 { font-size: var(--ac-text-lg); }
+h4 { font-size: var(--ac-text-md); }
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--ac-font-mono);
+  font-size: 0.92em;
+}
+
+/*
+ * Focus is always visible for keyboard users. :focus-visible keeps the ring off
+ * pointer interactions without ever removing it from tab navigation.
+ */
+:focus-visible {
+  outline: 2px solid var(--ac-accent);
+  outline-offset: 2px;
+  border-radius: var(--ac-radius-sm);
+}
+
+::selection {
+  background: var(--ac-indigo-100);
+  color: var(--ac-navy-900);
+}
+
+/* Skip link: first tabbable element on every page. */
+.ac-skip-link {
+  position: absolute;
+  left: var(--ac-space-4);
+  top: -100px;
+  z-index: var(--ac-z-overlay);
+  padding: var(--ac-space-3) var(--ac-space-5);
+  background: var(--ac-surface);
+  border: 1px solid var(--ac-accent);
+  border-radius: var(--ac-radius-md);
+  box-shadow: var(--ac-shadow-md);
+  font-weight: 600;
+  transition: top var(--ac-transition);
+}
+
+.ac-skip-link:focus {
+  top: var(--ac-space-4);
+}
+
+/* Screen-reader-only text that stays focusable. */
+.ac-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

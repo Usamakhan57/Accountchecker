@@ -1,0 +1,13 @@
+# Apache fallback. The supported production server is Nginx (docs/DEPLOYMENT.md);
+# this file only keeps a local Apache/XAMPP setup usable during development.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+</IfModule>

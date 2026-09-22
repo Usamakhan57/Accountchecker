@@ -1,0 +1,156 @@
+/*
+ * AccountCheck design tokens.
+ *
+ * One original visual language for the whole product: a deep navy chrome with
+ * an indigo-to-cyan accent ramp, light working surfaces, and a single 4px
+ * spacing grid. Components never hard-code a colour or a radius - they read
+ * these tokens, so a rebrand is a single-file change.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Brand ramp ------------------------------------------------------------ */
+  --ac-indigo-50: #eef0fe;
+  --ac-indigo-100: #dcdffd;
+  --ac-indigo-200: #bcc2fb;
+  --ac-indigo-300: #949ef7;
+  --ac-indigo-400: #6f7cf3;
+  --ac-indigo-500: #4f5bf0;
+  --ac-indigo-600: #3a43d4;
+  --ac-indigo-700: #2d34a8;
+  --ac-indigo-800: #242a83;
+  --ac-indigo-900: #1b1f63;
+
+  --ac-cyan-100: #d3f4f9;
+  --ac-cyan-300: #7fdcea;
+  --ac-cyan-500: #22b8cf;
+  --ac-cyan-700: #14808f;
+
+  /* Navy chrome ----------------------------------------------------------- */
+  --ac-navy-900: #0a0f22;
+  --ac-navy-800: #101733;
+  --ac-navy-700: #1a2447;
+  --ac-navy-600: #26325c;
+  --ac-navy-500: #3a4875;
+
+  /* Neutrals -------------------------------------------------------------- */
+  --ac-slate-25: #fbfcfe;
+  --ac-slate-50: #f5f7fb;
+  --ac-slate-100: #eceff6;
+  --ac-slate-200: #dfe3ee;
+  --ac-slate-300: #c6cddd;
+  --ac-slate-400: #9aa3bb;
+  --ac-slate-500: #6f7998;
+  --ac-slate-600: #515a78;
+  --ac-slate-700: #3b4460;
+  --ac-slate-800: #262d44;
+
+  /* Status ---------------------------------------------------------------- */
+  --ac-valid-surface: #e6f7ee;
+  --ac-valid-border: #a7e0c1;
+  --ac-valid-text: #11643c;
+
+  --ac-invalid-surface: #fdeceb;
+  --ac-invalid-border: #f4bab5;
+  --ac-invalid-text: #93231c;
+
+  --ac-unknown-surface: #eef0f6;
+  --ac-unknown-border: #d2d8e6;
+  --ac-unknown-text: #4a5470;
+
+  --ac-unavailable-surface: #fff4e2;
+  --ac-unavailable-border: #f6d9a4;
+  --ac-unavailable-text: #7e5210;
+
+  --ac-error-surface: #fdeceb;
+  --ac-error-border: #f4bab5;
+  --ac-error-text: #93231c;
+
+  --ac-info-surface: #e8f1fe;
+  --ac-info-border: #b6d3fb;
+  --ac-info-text: #1c4a8a;
+
+  /* Semantic surfaces ----------------------------------------------------- */
+  --ac-bg: var(--ac-slate-50);
+  --ac-surface: #ffffff;
+  --ac-surface-sunken: var(--ac-slate-100);
+  --ac-surface-raised: #ffffff;
+  --ac-border: var(--ac-slate-200);
+  --ac-border-strong: var(--ac-slate-300);
+
+  --ac-text: var(--ac-navy-800);
+  --ac-text-muted: var(--ac-slate-500);
+  --ac-text-subtle: var(--ac-slate-400);
+  --ac-text-inverse: #ffffff;
+
+  --ac-accent: var(--ac-indigo-500);
+  --ac-accent-hover: var(--ac-indigo-600);
+  --ac-accent-soft: var(--ac-indigo-50);
+  --ac-accent-ring: rgb(79 91 240 / 35%);
+
+  --ac-sidebar-bg: var(--ac-navy-800);
+  --ac-sidebar-bg-active: rgb(79 91 240 / 22%);
+  --ac-sidebar-text: #c3cbe4;
+  --ac-sidebar-text-active: #ffffff;
+  --ac-sidebar-border: rgb(255 255 255 / 8%);
+
+  /* Typography ------------------------------------------------------------ */
+  --ac-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --ac-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ac-text-2xs: 0.6875rem; /* 11px */
+  --ac-text-xs: 0.75rem;    /* 12px */
+  --ac-text-sm: 0.8125rem;  /* 13px */
+  --ac-text-base: 0.9375rem;/* 15px */
+  --ac-text-md: 1rem;       /* 16px */
+  --ac-text-lg: 1.125rem;   /* 18px */
+  --ac-text-xl: 1.375rem;   /* 22px */
+  --ac-text-2xl: 1.75rem;   /* 28px */
+  --ac-text-3xl: 2.25rem;   /* 36px */
+
+  --ac-leading-tight: 1.25;
+  --ac-leading-normal: 1.55;
+
+  /* Spacing (4px grid) ---------------------------------------------------- */
+  --ac-space-1: 0.25rem;
+  --ac-space-2: 0.5rem;
+  --ac-space-3: 0.75rem;
+  --ac-space-4: 1rem;
+  --ac-space-5: 1.25rem;
+  --ac-space-6: 1.5rem;
+  --ac-space-8: 2rem;
+  --ac-space-10: 2.5rem;
+  --ac-space-12: 3rem;
+  --ac-space-16: 4rem;
+
+  /* Radii ----------------------------------------------------------------- */
+  --ac-radius-sm: 6px;
+  --ac-radius-md: 10px;
+  --ac-radius-lg: 14px;
+  --ac-radius-xl: 20px;
+  --ac-radius-pill: 999px;
+
+  /* Elevation ------------------------------------------------------------- */
+  --ac-shadow-xs: 0 1px 2px rgb(16 23 51 / 6%);
+  --ac-shadow-sm: 0 1px 3px rgb(16 23 51 / 8%), 0 1px 2px rgb(16 23 51 / 4%);
+  --ac-shadow-md: 0 4px 16px rgb(16 23 51 / 8%);
+  --ac-shadow-lg: 0 16px 40px rgb(16 23 51 / 14%);
+
+  /* Layout ---------------------------------------------------------------- */
+  --ac-sidebar-width: 248px;
+  --ac-topbar-height: 60px;
+  --ac-content-max: 1360px;
+
+  --ac-transition: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ac-z-sidebar: 40;
+  --ac-z-topbar: 30;
+  --ac-z-overlay: 60;
+  --ac-z-toast: 80;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ac-transition: 0ms;
+  }
+}
