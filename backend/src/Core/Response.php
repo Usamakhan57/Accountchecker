@@ -15,6 +15,17 @@ final class Response
     /** @var array<string, string> */
     private array $headers = [];
 
+    /**
+     * Set-Cookie lines.
+     *
+     * Kept apart from $headers because a response may set more than one cookie
+     * (a session and a CSRF token on the same sign-in), and a name => value map
+     * would silently keep only the last.
+     *
+     * @var list<string>
+     */
+    private array $cookies = [];
+
     private function __construct(
         private readonly int $status,
         private readonly mixed $payload,
@@ -81,8 +92,28 @@ final class Response
         return $response;
     }
 
+    /** Adds a Set-Cookie line. Several may be set on one response. */
+    public function withCookie(string $cookie): self
+    {
+        $this->cookies[] = $cookie;
+
+        return $this;
+    }
+
+    /** @return list<string> */
+    public function cookies(): array
+    {
+        return $this->cookies;
+    }
+
     public function withHeader(string $name, string $value): self
     {
+        // Set-Cookie is the one header that may repeat, so it is routed to the
+        // cookie list rather than overwriting whatever was set before it.
+        if (strcasecmp($name, 'Set-Cookie') === 0) {
+            return $this->withCookie($value);
+        }
+
         $this->headers[$name] = $value;
 
         return $this;
@@ -138,6 +169,12 @@ final class Response
 
             foreach ($this->headers as $name => $value) {
                 header($name . ': ' . $value);
+            }
+
+            // replace: false, so each cookie is emitted rather than the last
+            // one winning.
+            foreach ($this->cookies as $cookie) {
+                header('Set-Cookie: ' . $cookie, false);
             }
         }
 

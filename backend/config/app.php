@@ -26,12 +26,18 @@ return [
     // Runs before routing, so unknown paths and preflight get them too.
     'global_middleware' => [
         AccountCheck\Middleware\CorsMiddleware::class,
+        // Before routing, so an unsafe request to a path that does not exist is
+        // refused for want of a token rather than probing the route table.
+        AccountCheck\Middleware\CsrfMiddleware::class,
     ],
 
     // Applied to every response on the way out.
     'response_decorators' => [
         AccountCheck\Middleware\CorsMiddleware::class,
         AccountCheck\Middleware\SecurityHeadersMiddleware::class,
+        // Issues the token cookie on the way out, so a client's first read
+        // leaves it able to make a write.
+        AccountCheck\Middleware\CsrfMiddleware::class,
     ],
 
     'rate_limits' => [

@@ -59,6 +59,25 @@ export function setUnauthenticatedHandler(handler: UnauthenticatedHandler | null
   onUnauthenticated = handler;
 }
 
+/** Methods the API treats as safe, and which therefore need no CSRF token. */
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+const CSRF_COOKIE = 'accountcheck_csrf';
+
+/**
+ * Reads the CSRF token the API issued.
+ *
+ * This cookie is deliberately not HttpOnly: echoing it back in a header is
+ * what proves the request came from our own code, since another origin can
+ * cause the cookie to be sent but cannot read it. The session cookie stays
+ * HttpOnly and is never touched here.
+ */
+function csrfToken(): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE}=([^;]*)`));
+
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 function buildUrl(path: string, query?: RequestOptions['query']): string {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 
@@ -78,6 +97,10 @@ function buildUrl(path: string, query?: RequestOptions['query']): string {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return send<T>(path, options, true);
+}
+
+async function send<T>(path: string, options: RequestOptions, mayRetry: boolean): Promise<T> {
   const { method = 'GET', body, query, signal, formData } = options;
 
   const headers: Record<string, string> = { Accept: 'application/json' };
@@ -88,6 +111,17 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   } else if (body !== undefined) {
     headers['Content-Type'] = 'application/json';
     payload = JSON.stringify(body);
+  }
+
+  // Anything that can change state carries the token. The API issues it on any
+  // read, and the app performs one at start-up, so it is always present by the
+  // time a write happens.
+  if (!SAFE_METHODS.has(method)) {
+    const token = csrfToken();
+
+    if (token) {
+      headers['X-CSRF-Token'] = token;
+    }
   }
 
   let response: Response;
@@ -138,6 +172,17 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
     if (response.status === 401 && onUnauthenticated) {
       onUnauthenticated();
+    }
+
+    // A write can land before the app's first read has returned a token, which
+    // is a race rather than a real forgery. One cheap read fetches the token,
+    // and the write is tried once more; a second failure is reported as it is.
+    if (response.status === 419 && mayRetry && !SAFE_METHODS.has(method)) {
+      await fetch(buildUrl('/api/health'), { credentials: 'include' }).catch(() => undefined);
+
+      if (csrfToken()) {
+        return send<T>(path, options, false);
+      }
     }
 
     throw new ApiError(

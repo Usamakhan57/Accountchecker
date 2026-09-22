@@ -7,6 +7,7 @@ namespace AccountCheck\Controllers;
 use AccountCheck\Core\Request;
 use AccountCheck\Core\Response;
 use AccountCheck\Repositories\SupportRepository;
+use AccountCheck\Services\RateLimiter;
 use AccountCheck\Services\SupportService;
 
 /**
@@ -17,8 +18,10 @@ use AccountCheck\Services\SupportService;
  */
 final class SupportController extends Controller
 {
-    public function __construct(private readonly SupportService $support)
-    {
+    public function __construct(
+        private readonly SupportService $support,
+        private readonly RateLimiter $limiter,
+    ) {
     }
 
     public function index(Request $request): Response
@@ -34,6 +37,14 @@ final class SupportController extends Controller
 
     public function store(Request $request): Response
     {
+        // The open-ticket cap stops a queue filling up; this stops one account
+        // opening and closing tickets in a loop to get round it.
+        $this->limiter->enforce(
+            'support',
+            'user:' . $this->user($request)->id,
+            'You have opened a lot of tickets recently. Please add to an existing one.',
+        );
+
         $input = $this->validate($request, [
             'subject' => 'required|string|min:4|max:160',
             'body' => 'required|string|min:10|max:5000',
@@ -61,6 +72,12 @@ final class SupportController extends Controller
 
     public function reply(Request $request): Response
     {
+        $this->limiter->enforce(
+            'support',
+            'user:' . $this->user($request)->id,
+            'You have sent a lot of messages recently. Please wait a moment.',
+        );
+
         $input = $this->validate($request, [
             'body' => 'required|string|min:2|max:5000',
         ]);

@@ -10,6 +10,7 @@ use AccountCheck\Core\HttpException;
 use AccountCheck\Core\Request;
 use AccountCheck\Core\Response;
 use AccountCheck\Services\JobService;
+use AccountCheck\Services\RateLimiter;
 
 /**
  * Batch job endpoints.
@@ -28,6 +29,7 @@ final class JobController extends Controller
         private readonly JobService $jobs,
         private readonly CheckerRegistry $registry,
         private readonly Config $config,
+        private readonly RateLimiter $limiter,
     ) {
     }
 
@@ -39,6 +41,17 @@ final class JobController extends Controller
     public function start(Request $request): Response
     {
         $user = $this->user($request);
+
+        // A batch is the expensive operation here: it writes thousands of rows
+        // and occupies a worker. The active-job cap in JobService bounds what
+        // runs at once; this bounds how fast jobs can be created at all, so a
+        // loop cannot fill the queue table faster than the worker drains it.
+        $this->limiter->enforce(
+            'checker_start',
+            'user:' . $user->id,
+            'You have started a lot of jobs recently. Please wait a few minutes before starting another.',
+        );
+
         $slug = (string) $request->routeParam('slug', '');
         $checker = $this->registry->get($slug);
 
