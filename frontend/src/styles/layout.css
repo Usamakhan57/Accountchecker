@@ -435,4 +435,42 @@
   .ac-public__nav {
     display: none;
   }
+
+  /*
+   * At this width the header holds the wordmark and two buttons and nothing
+   * else, and it has to hold them on one line. The utility class the brand
+   * link uses wraps by default, which stacked the mark above the word and
+   * pushed the buttons out of the bar.
+   */
+  .ac-public__header {
+    gap: var(--ac-space-3);
+    padding-inline: var(--ac-space-4);
+  }
+
+  .ac-public__header > * {
+    flex-wrap: nowrap;
+  }
+
+  .ac-public__brand {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .ac-public__brand span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ac-public__actions {
+    flex: 0 0 auto;
+    gap: var(--ac-space-2);
+  }
+
+  /* The 44px touch target applies to content buttons, not this bar, which
+     would otherwise outgrow its own height. */
+  .ac-public__header .ac-btn {
+    min-height: 36px;
+    padding-inline: var(--ac-space-3);
+  }
 }

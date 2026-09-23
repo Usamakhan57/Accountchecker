@@ -86,7 +86,7 @@ export function DashboardPage() {
 
         {error && <ErrorState message={error} onRetry={dashboard.reload} />}
 
-        <div className="ac-grid ac-grid--stats">
+        <div className="ac-grid ac-grid--three">
           <StatTile
             label="Available credits"
             value={formatNumber(wallet?.available ?? 0)}
@@ -206,7 +206,7 @@ export function DashboardPage() {
         </div>
 
         <Card title="Quick actions">
-          <div className="ac-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))' }}>
+          <div className="ac-grid ac-grid--three">
             {QUICK_ACTIONS.map((action) => (
               <Link
                 key={action.to}

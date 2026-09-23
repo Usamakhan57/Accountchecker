@@ -44,6 +44,15 @@ const FLOW = [
   { step: '05', title: 'Export the result', body: 'Filter to the statuses you want, then export as CSV or TXT.' },
 ];
 
+/* The tone names match the status tokens the results table already uses. */
+const STATUSES: { label: string; tone: string; body: string }[] = [
+  { label: 'VALID', tone: 'valid', body: 'An authorized source confirmed it.' },
+  { label: 'INVALID', tone: 'invalid', body: 'An authorized source said no.' },
+  { label: 'UNKNOWN', tone: 'unknown', body: 'Answered, but not definitively.' },
+  { label: 'UNAVAILABLE', tone: 'unavailable', body: 'No authorized way to check it. Not billed.' },
+  { label: 'ERROR', tone: 'error', body: 'The check did not complete. Not billed.' },
+];
+
 export function HomePage() {
   usePageMeta({
     title: 'AccountCheck',
@@ -61,32 +70,53 @@ export function HomePage() {
             'radial-gradient(1000px 520px at 15% -10%, rgb(79 91 240 / 14%), transparent 60%), radial-gradient(760px 420px at 92% 0%, rgb(34 184 207 / 12%), transparent 55%)',
         }}
       >
-        <div className="ac-container">
-          <span className="ac-badge ac-badge--info">Authorized verification only</span>
-          <h1
-            style={{
-              marginTop: 'var(--ac-space-4)',
-              maxWidth: '18ch',
-              fontSize: 'clamp(2rem, 5vw, 3.25rem)',
-              letterSpacing: '-0.03em',
-            }}
-          >
-            Verify long lists without babysitting a browser tab.
-          </h1>
-          <p style={{ marginTop: 'var(--ac-space-4)', maxWidth: '62ch', fontSize: 'var(--ac-text-lg)', color: 'var(--ac-text-muted)' }}>
-            Paste up to 5,000 records, start a job and let a background worker do the run. AccountCheck
-            reports each record as VALID, INVALID, UNKNOWN, ERROR or UNAVAILABLE, so you always know the
-            difference between a bad record and a check that could not be performed.
-          </p>
+        <div className="ac-container ac-hero">
+          <div>
+            <span className="ac-badge ac-badge--info">Authorized verification only</span>
+            <h1
+              style={{
+                marginTop: 'var(--ac-space-4)',
+                maxWidth: '18ch',
+                fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+                letterSpacing: '-0.03em',
+              }}
+            >
+              Verify long lists without babysitting a browser tab.
+            </h1>
+            <p style={{ marginTop: 'var(--ac-space-4)', maxWidth: '54ch', fontSize: 'var(--ac-text-lg)', color: 'var(--ac-text-muted)' }}>
+              Paste up to 5,000 records, start a job and let a background worker do the run. Every
+              record comes back with a status that says exactly what happened.
+            </p>
 
-          <div className="ac-row" style={{ marginTop: 'var(--ac-space-8)', gap: 'var(--ac-space-3)' }}>
-            <Link to="/register" className="ac-btn ac-btn--primary ac-btn--lg">
-              Create an account
-            </Link>
-            <Link to="/pricing" className="ac-btn ac-btn--secondary ac-btn--lg">
-              See plans
-            </Link>
+            <div className="ac-row" style={{ marginTop: 'var(--ac-space-8)', gap: 'var(--ac-space-3)' }}>
+              <Link to="/register" className="ac-btn ac-btn--primary ac-btn--lg">
+                Create an account
+              </Link>
+              <Link to="/pricing" className="ac-btn ac-btn--secondary ac-btn--lg">
+                See plans
+              </Link>
+            </div>
           </div>
+
+          {/*
+            The five statuses, shown rather than listed in a sentence. The
+            distinction that matters most is the last two: a check that could
+            not be made is not a bad record, and it is not billed.
+          */}
+          <aside className="ac-card ac-hero__aside" aria-label="What a result can say">
+            <div className="ac-card__body">
+              <p className="ac-eyebrow">Every record comes back as one of these</p>
+              <ul role="list" className="ac-status-key">
+                {STATUSES.map((status) => (
+                  <li key={status.label}>
+                    <span className={`ac-status-key__dot ac-status-key__dot--${status.tone}`} aria-hidden="true" />
+                    <span className="ac-mono ac-status-key__label">{status.label}</span>
+                    <span className="ac-status-key__body">{status.body}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -125,7 +155,7 @@ export function HomePage() {
       <section style={{ padding: 'var(--ac-space-12) 0', background: 'var(--ac-surface)', borderBlock: '1px solid var(--ac-border)' }}>
         <div className="ac-container">
           <h2>How a run works</h2>
-          <ol role="list" className="ac-grid" style={{ marginTop: 'var(--ac-space-6)', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
+          <ol role="list" className="ac-grid ac-flow-steps" style={{ marginTop: 'var(--ac-space-6)' }}>
             {FLOW.map((entry) => (
               <li key={entry.step}>
                 <p className="ac-mono" style={{ color: 'var(--ac-accent)', fontWeight: 600 }}>{entry.step}</p>

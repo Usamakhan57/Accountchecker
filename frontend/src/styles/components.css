@@ -414,6 +414,28 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
+/*
+ * For a grid whose item count is known and even. auto-fit picks as many
+ * columns as fit, which leaves the last item stranded at a fraction of the
+ * width whenever the count does not divide by the column count - six tiles in
+ * five columns is five and a lone one. Naming the count keeps every row full.
+ */
+.ac-grid--three {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .ac-grid--three {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1040px) {
+  .ac-grid--three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .ac-grid--halves {
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
 }
@@ -1247,4 +1269,123 @@
      React, so nothing in it is interpreted as markup. */
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/*
+ * The five steps on the home page.
+ *
+ * Five is prime, so auto-fit can only ever strand one: at four across the
+ * fifth sits alone at a quarter width. The count is named per breakpoint
+ * instead - one, then two and a full-width last, then all five in a row.
+ */
+.ac-flow-steps {
+  grid-template-columns: 1fr;
+  counter-reset: none;
+}
+
+@media (min-width: 620px) {
+  .ac-flow-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ac-flow-steps > li:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .ac-flow-steps {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .ac-flow-steps > li:last-child {
+    grid-column: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Home page hero.
+ *
+ * Two columns on a wide screen, because the copy alone leaves most of the
+ * width empty; the status key carries real product vocabulary into that space
+ * rather than filling it with decoration. One column below that, with the key
+ * after the buttons, so the call to action stays above the fold on a phone.
+ * ------------------------------------------------------------------------- */
+.ac-hero {
+  display: grid;
+  gap: var(--ac-space-8);
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .ac-hero {
+    grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
+    gap: var(--ac-space-10);
+  }
+}
+
+.ac-hero__aside {
+  align-self: center;
+}
+
+.ac-eyebrow {
+  font-size: var(--ac-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ac-text-muted);
+}
+
+.ac-status-key {
+  display: grid;
+  gap: var(--ac-space-3);
+  margin-top: var(--ac-space-4);
+}
+
+.ac-status-key > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--ac-space-2);
+  row-gap: 2px;
+}
+
+.ac-status-key__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  /* Nudged onto the cap height of the label beside it. */
+  transform: translateY(-1px);
+}
+
+.ac-status-key__dot--valid {
+  background: var(--ac-valid-text);
+}
+
+.ac-status-key__dot--invalid {
+  background: var(--ac-invalid-text);
+}
+
+.ac-status-key__dot--unknown {
+  background: var(--ac-unknown-text);
+}
+
+.ac-status-key__dot--unavailable {
+  background: var(--ac-unavailable-text);
+}
+
+.ac-status-key__dot--error {
+  background: var(--ac-error-text);
+}
+
+.ac-status-key__label {
+  font-size: var(--ac-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ac-status-key__body {
+  grid-column: 2;
+  font-size: var(--ac-text-sm);
+  color: var(--ac-text-muted);
 }

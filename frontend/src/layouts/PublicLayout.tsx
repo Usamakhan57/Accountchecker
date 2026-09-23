@@ -22,7 +22,7 @@ export function PublicLayout() {
       </a>
 
       <header className="ac-public__header">
-        <Link to="/" className="ac-row" style={{ gap: '0.625rem', textDecoration: 'none' }}>
+        <Link to="/" className="ac-row ac-public__brand" style={{ gap: '0.625rem', textDecoration: 'none' }}>
           <BrandMark size={26} />
           <span style={{ fontWeight: 700, letterSpacing: '-0.015em', color: 'var(--ac-navy-800)' }}>
             AccountCheck
@@ -37,7 +37,7 @@ export function PublicLayout() {
           ))}
         </nav>
 
-        <div className="ac-row" style={{ marginLeft: 'auto', gap: '0.5rem' }}>
+        <div className="ac-row ac-public__actions" style={{ marginLeft: 'auto', gap: '0.5rem' }}>
           {user ? (
             <Link to="/dashboard" className="ac-btn ac-btn--primary ac-btn--sm">
               Open dashboard
