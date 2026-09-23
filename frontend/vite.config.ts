@@ -40,9 +40,25 @@ export default defineConfig(({ mode }) => {
       // components are code-split separately via React.lazy in the router.
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ['react', 'react-dom'],
-            router: ['react-router-dom'],
+          // A function rather than the map form. With the map, Rollup put
+          // React's own internals in the router chunk - react-router-dom
+          // reaches them first - and left an all-but-empty react chunk
+          // behind. Deciding per module keeps React where it belongs, so a
+          // router upgrade does not invalidate React in everyone's cache.
+          manualChunks(id: string) {
+            if (!id.includes('node_modules')) {
+              return undefined;
+            }
+
+            if (/node_modules\/(react-router|@remix-run)/.test(id)) {
+              return 'router';
+            }
+
+            if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) {
+              return 'react';
+            }
+
+            return 'vendor';
           },
         },
       },

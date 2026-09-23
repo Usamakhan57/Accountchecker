@@ -15,6 +15,13 @@ use AccountCheck\Support\Paginator;
  */
 final class ResultRepository extends Repository
 {
+    /**
+     * id => row, read on first use. See withCheckerLabels().
+     *
+     * @var array<int, array<string, mixed>>|null
+     */
+    private ?array $checkerLabels = null;
+
     /** @param array<string, mixed> $metadata */
     public function record(
         int $jobId,
@@ -142,19 +149,24 @@ final class ResultRepository extends Repository
         // same row twice or skip one.
         $orderBy = $sort === 'r.id' ? 'r.id ' . $direction : $sort . ' ' . $direction . ', r.id ' . $direction;
 
+        // No join to checker_types here on purpose. It has a handful of rows,
+        // and the optimizer reads that as an invitation to drive the query
+        // from it: it then reaches checker_results by the foreign key instead
+        // of the index that matches the WHERE clause, and sorts the whole
+        // matched set in a temporary table. Over a large account that turned a
+        // 4 ms page into a 200 ms one. The labels are attached below from a
+        // map read once, which is what a six-row lookup table deserves.
         $items = $this->database->select(
-            'SELECT r.id, r.job_id, r.raw_input, r.normalized_input, r.status, r.reason,
-                    r.source, r.response_time_ms, r.metadata, r.checked_at,
-                    c.slug AS checker_slug, c.label AS checker_label
+            'SELECT r.id, r.job_id, r.checker_type_id, r.raw_input, r.normalized_input,
+                    r.status, r.reason, r.source, r.response_time_ms, r.metadata, r.checked_at
              FROM checker_results r
-             INNER JOIN checker_types c ON c.id = r.checker_type_id
              WHERE ' . $where . '
              ORDER BY ' . $orderBy . '
              LIMIT :limit OFFSET :offset',
             $bindings + ['limit' => $paginator->limit(), 'offset' => $paginator->offset()],
         );
 
-        return ['items' => $items, 'total' => $total];
+        return ['items' => $this->withCheckerLabels($items), 'total' => $total];
     }
 
     /**
@@ -230,16 +242,15 @@ final class ResultRepository extends Repository
         while (true) {
             // Keyset paging, not OFFSET: the cost of each chunk stays the same
             // whether it is the first or the ten-thousandth row.
-            $rows = $this->database->select(
-                'SELECT r.id, r.raw_input, r.normalized_input, r.status, r.reason, r.source,
-                        r.response_time_ms, r.checked_at, c.slug AS checker_slug, c.label AS checker_label
+            $rows = $this->withCheckerLabels($this->database->select(
+                'SELECT r.id, r.checker_type_id, r.raw_input, r.normalized_input, r.status,
+                        r.reason, r.source, r.response_time_ms, r.checked_at
                  FROM checker_results r
-                 INNER JOIN checker_types c ON c.id = r.checker_type_id
                  WHERE ' . $where . ' AND r.id > :last_id
                  ORDER BY r.id ASC
                  LIMIT :limit',
                 $baseBindings + ['last_id' => $lastId, 'limit' => $chunkSize],
-            );
+            ));
 
             if ($rows === []) {
                 return;
@@ -278,6 +289,38 @@ final class ResultRepository extends Repository
      * @param array<string, mixed> $bindings
      * @return array{0: string, 1: array<string, mixed>}
      */
+    /**
+     * Attaches checker_slug and checker_label to rows read without the join.
+     *
+     * The map is read once per request. checker_types holds one row per
+     * checker and changes only when an administrator edits one, so this is a
+     * lookup rather than a cache with anything to invalidate.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @return list<array<string, mixed>>
+     */
+    private function withCheckerLabels(array $rows): array
+    {
+        if ($rows === []) {
+            return [];
+        }
+
+        $this->checkerLabels ??= array_column(
+            $this->database->select('SELECT id, slug, label FROM checker_types'),
+            null,
+            'id',
+        );
+
+        foreach ($rows as $index => $row) {
+            $type = $this->checkerLabels[(int) ($row['checker_type_id'] ?? 0)] ?? null;
+
+            $rows[$index]['checker_slug'] = (string) ($type['slug'] ?? '');
+            $rows[$index]['checker_label'] = (string) ($type['label'] ?? 'Unknown checker');
+        }
+
+        return $rows;
+    }
+
     private function filters(array $filters, array $conditions, array $bindings): array
     {
         $status = isset($filters['status']) ? strtoupper(trim((string) $filters['status'])) : '';
