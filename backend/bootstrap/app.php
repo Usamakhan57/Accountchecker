@@ -21,7 +21,17 @@ require_once __DIR__ . '/autoload.php';
 
 $basePath = dirname(__DIR__);
 
-Env::load($basePath . '/.env');
+// APP_ENV in the process environment selects the env file, so the test
+// bootstrap can point the whole container at .env.testing without the
+// development .env loading afterwards and winning on every shared key.
+$environment = (string) (getenv('APP_ENV') ?: '');
+$envFile = $basePath . '/.env';
+
+if ($environment !== '' && is_readable($basePath . '/.env.' . $environment)) {
+    $envFile = $basePath . '/.env.' . $environment;
+}
+
+Env::load($envFile);
 
 $config = new Config($basePath . '/config');
 

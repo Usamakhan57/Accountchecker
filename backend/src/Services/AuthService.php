@@ -26,8 +26,10 @@ use AccountCheck\Support\Str;
  *
  * Two rules shape most of what follows:
  *
- *   - Responses must not reveal whether an email address is registered. Login,
- *     registration and password reset all answer the same way either way.
+ *   - Login and password reset must not reveal whether an email address is
+ *     registered; both answer identically either way. Registration is the one
+ *     exception, and deliberately so: the address was just typed by the person
+ *     in front of us, and a duplicate has to be actionable.
  *   - Every credential path is rate limited per IP and per address, and every
  *     outcome is written to the audit log.
  */

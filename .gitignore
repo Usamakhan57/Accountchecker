@@ -35,3 +35,6 @@ Thumbs.db
 
 # Test environment (may contain a local database password)
 backend/.env.testing
+
+# PHPUnit result cache
+backend/.phpunit.cache/

@@ -134,9 +134,23 @@ final class Response
         return $this->status;
     }
 
-    /** @return array<string, string> */
+    /**
+     * Every header this response will send.
+     *
+     * A JSON response's Content-Type is filled in here rather than at send
+     * time, so the header map is the whole answer and a caller - a decorator,
+     * or a test - never has to know that one header is added later.
+     *
+     * @return array<string, string>
+     */
     public function headers(): array
     {
+        if ($this->rawBody === null) {
+            // A Content-Type set explicitly still wins; this only fills the
+            // gap when nothing set one.
+            return $this->headers + ['Content-Type' => 'application/json; charset=utf-8'];
+        }
+
         return $this->headers;
     }
 
@@ -163,11 +177,7 @@ final class Response
         if (!headers_sent()) {
             http_response_code($this->status);
 
-            if ($this->rawBody === null) {
-                header('Content-Type: application/json; charset=utf-8');
-            }
-
-            foreach ($this->headers as $name => $value) {
+            foreach ($this->headers() as $name => $value) {
                 header($name . ': ' . $value);
             }
 

@@ -14,11 +14,17 @@ require_once dirname(__DIR__) . '/bootstrap/autoload.php';
 
 use AccountCheck\Core\Env;
 
+// Set before anything loads an env file: bootstrap/app.php reads APP_ENV from
+// the process environment to decide which file to read, so this is what keeps
+// the development .env out of the test container.
+putenv('APP_ENV=testing');
+$_ENV['APP_ENV'] = 'testing';
+$_SERVER['APP_ENV'] = 'testing';
+
 Env::load(dirname(__DIR__) . '/.env.testing');
 
 // Deterministic defaults for anything the test env file did not set.
 foreach ([
-    'APP_ENV' => 'testing',
     'APP_DEBUG' => 'true',
     'APP_TIMEZONE' => 'UTC',
     'CHECKER_MODE' => 'mock',
