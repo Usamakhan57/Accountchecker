@@ -1,0 +1,57 @@
+# AccountCheck queue worker.
+#
+#   sudo cp accountcheck-worker.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now accountcheck-worker
+#
+# Run more than one by templating this file (accountcheck-worker@.service with
+# %i in WorkerId). Work is claimed with atomic UPDATEs, so two workers cannot
+# take the same job or the same record.
+
+[Unit]
+Description=AccountCheck queue worker
+Documentation=file:/var/www/accountcheck/docs/DEPLOYMENT.md
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/accountcheck/backend
+
+# --max-runtime makes the process exit cleanly after an hour; Restart=always
+# brings it back. A long-lived PHP process that never restarts accumulates
+# problems nobody sees.
+ExecStart=/usr/bin/php /var/www/accountcheck/backend/worker.php --max-runtime=3600 --quiet
+
+# SIGTERM finishes the current chunk and hands an unfinished job back to the
+# queue rather than truncating it, so the timeout has to allow for one chunk.
+KillSignal=SIGTERM
+TimeoutStopSec=90
+
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=accountcheck-worker
+
+# The worker needs the database, an outbound connection to authorized provider
+# APIs, and write access to its own storage directory. Nothing else.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+ReadWritePaths=/var/www/accountcheck/backend/storage
+
+[Install]
+WantedBy=multi-user.target

@@ -49,8 +49,10 @@ backend/      PHP REST API, queue, worker, tests
   storage/    logs, uploads, exports (writable, never web-reachable)
   worker.php  CLI queue worker
 frontend/     React 18 + TypeScript + Vite single-page app
+  public/fonts/  self-hosted Inter and JetBrains Mono (no third-party request)
+deploy/       server configuration templates (Nginx, PHP-FPM pool, systemd)
 docs/         API, security, deployment, backup and troubleshooting guides
-scripts/      deployment and maintenance scripts
+scripts/      deploy.sh
 ```
 
 ## Getting started
@@ -104,6 +106,20 @@ cd backend  && composer lint      # php -l over every source file
 
 ## Deployment
 
-Nothing here deploys itself. `scripts/deploy.sh` is a reviewed, idempotent
-script that operates only inside the application directory; see
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full server preparation.
+Nothing here deploys itself. `scripts/deploy.sh` builds the frontend, applies
+migrations, fixes storage permissions and reloads AccountCheck's own services —
+and nothing else. It never edits a file outside the application directory,
+never touches Nginx, and never restarts a service that is not AccountCheck's.
+It refuses to run outside an AccountCheck checkout, and refuses to deploy a
+production environment with debug output on, an insecure session cookie, CSRF
+disabled, a wildcard CORS origin, an empty `APP_KEY`, or `root` as the database
+user.
+
+```bash
+./scripts/deploy.sh --check    # says what it would do, changes nothing
+./scripts/deploy.sh
+```
+
+Server preparation — the database, the PHP-FPM pool, the Nginx site, HTTPS, the
+worker unit and the firewall — is manual and deliberate. Templates are in
+`deploy/`; the steps are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).

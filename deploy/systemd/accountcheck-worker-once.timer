@@ -1,0 +1,15 @@
+# See accountcheck-worker-once.service. Not needed when the worker runs as a
+# service.
+
+[Unit]
+Description=Run one AccountCheck worker pass every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+# Spread the load if several machines share a database.
+RandomizedDelaySec=30
+Persistent=true
+
+[Install]
+WantedBy=timers.target

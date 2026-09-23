@@ -1,0 +1,32 @@
+# One pass of the worker, for an installation that would rather run it from a
+# timer than as a long-lived service.
+#
+# You do not need this if accountcheck-worker.service is running. That service
+# already sweeps abandoned jobs and deletes expired export files on its idle
+# passes; this unit exists for the other arrangement, not as an addition to it.
+#
+#   sudo cp accountcheck-worker-once.* /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now accountcheck-worker-once.timer
+#
+# A pass sweeps claims older than WORKER_LOCK_TTL_SECONDS back into the queue,
+# deletes exports past EXPORT_RETENTION_HOURS, prunes stale heartbeats, and
+# then processes one job before exiting. Jobs therefore wait up to one timer
+# interval to start, which is why the service is the better default.
+
+[Unit]
+Description=AccountCheck worker, single pass
+After=mysql.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/accountcheck/backend
+ExecStart=/usr/bin/php /var/www/accountcheck/backend/worker.php --once --quiet
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/accountcheck/backend/storage
